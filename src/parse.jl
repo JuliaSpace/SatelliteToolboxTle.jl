@@ -8,36 +8,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 ################################################################################
-#                                    Macros
-################################################################################
-
-# Try to parse the `input` to type `T`.
-#
-# If the operation is successful, it assigns the parsed value to `input`.
-# Otherwise, it prints an error message and execute the command
-# `return nothing`.
-#
-# `debug_prefix` is a string to be added to the debugging message, `line_number`
-# must be the current TLE line number (1 or 2), `field` must be the current TLE
-# field that is being parsed.
-macro _tle_try_parse(output, T, input, line_number, debug_prefix, field)
-    return esc(
-        quote
-            $output = tryparse($T, $input)
-
-            if isnothing($output)
-                @error(
-                    $debug_prefix * "The $($field) in the TLE line $($line_number) could not be parsed."
-                )
-
-                return nothing
-            end
-        end
-    )
-end
-
-################################################################################
-#                                  Functions
+#                              Private functions
 ################################################################################
 
 # Parse the TLE with first line `l1`, and second line `l2`.
@@ -74,14 +45,14 @@ function _parse_tle(
     # Satellite number
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        satellite_number,
+    satellite_number = _tle_try_parse(
         Int,
         l1[3:7],
         1,
         debug_prefix,
         "satellite number"
     )
+    isnothing(satellite_number) && return nothing
 
     # Classification
     # --------------------------------------------------------------------------
@@ -96,40 +67,55 @@ function _parse_tle(
     # Epoch
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(epoch_year, Int,     l1[19:20], 1, debug_prefix, "epoch year")
-    @_tle_try_parse(epoch_day,  Float64, l1[21:32], 1, debug_prefix, "epoch day")
+    epoch_year = _tle_try_parse(
+        Int,
+        l1[19:20],
+        1,
+        debug_prefix,
+        "epoch year"
+    )
+    isnothing(epoch_year) && return nothing
+
+    epoch_day = _tle_try_parse(
+        Float64,
+        l1[21:32],
+        1,
+        debug_prefix,
+        "epoch day"
+    )
+    isnothing(epoch_day) && return nothing
 
     # Mean motion derivatives
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        dn_o2,
+    dn_o2 = _tle_try_parse(
         Float64,
         l1[34:43],
         1,
         debug_prefix,
         "first derivative of mean motion (dn_o2)"
     )
+    isnothing(dn_o2) && return nothing
 
     aux = ((l1[45] == ' ') ? "+." : l1[45] * "." ) * l1[46:50]
 
-    @_tle_try_parse(
-        ddn_o6_dec,
+    ddn_o6_dec = _tle_try_parse(
         Float64,
         aux,
         1,
         debug_prefix,
         "second derivative of mean motion (ddn_o6)"
     )
+    isnothing(ddn_o6_dec) && return nothing
 
-    @_tle_try_parse(
-        ddn_o6_exp,
+    ddn_o6_exp = _tle_try_parse(
         Float64,
         l1[51:52],
         1,
         debug_prefix,
         "second derivative of mean motion (ddn_o6)"
     )
+    isnothing(ddn_o6_exp) && return nothing
 
     ddn_o6 = ddn_o6_dec * 10^ddn_o6_exp
 
@@ -138,8 +124,23 @@ function _parse_tle(
 
     aux = ((l1[54] == ' ') ? "+." : l1[54] * "." ) * l1[55:59]
 
-    @_tle_try_parse(bstar_dec, Float64, aux,       1, debug_prefix, "BSTAR")
-    @_tle_try_parse(bstar_exp, Float64, l1[60:61], 1, debug_prefix, "BSTAR")
+    bstar_dec = _tle_try_parse(
+        Float64,
+        aux,
+        1,
+        debug_prefix,
+        "BSTAR"
+    )
+    isnothing(bstar_dec) && return nothing
+
+    bstar_exp = _tle_try_parse(
+        Float64,
+        l1[60:61],
+        1,
+        debug_prefix,
+        "BSTAR"
+    )
+    isnothing(bstar_exp) && return nothing
 
     bstar = bstar_dec * 10^bstar_exp
 
@@ -152,14 +153,14 @@ function _parse_tle(
     # Element number
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        element_set_number,
+    element_set_number = _tle_try_parse(
         Int,
         l1[65:68],
         1,
         debug_prefix,
         "element set number"
     )
+    isnothing(element_set_number) && return nothing
 
     #                               Second line
     # ==========================================================================
@@ -183,14 +184,14 @@ function _parse_tle(
     # Compare satellite number with the one in the first line
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        satellite_number_line_2,
+    satellite_number_line_2 = _tle_try_parse(
         Int,
         l2[3:7],
         2,
         debug_prefix,
         "satellite number"
     )
+    isnothing(satellite_number_line_2) && return nothing
 
     if satellite_number_line_2 != satellite_number
         @error(debug_prefix * "Satellite number in line 2 is not equal to that in line 1.")
@@ -200,86 +201,86 @@ function _parse_tle(
     # Inclination
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        inclination,
+    inclination = _tle_try_parse(
         Float64,
         l2[9:16],
         2,
         debug_prefix,
         "inclination"
     )
+    isnothing(inclination) && return nothing
 
     # RAAN
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        raan,
+    raan = _tle_try_parse(
         Float64,
         l2[18:25],
         2,
         debug_prefix,
         "rigth ascension of the ascending node (RAAN)"
     )
+    isnothing(raan) && return nothing
 
     # Eccentricity
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        eccentricity,
+    eccentricity = _tle_try_parse(
         Float64,
         "." * l2[27:33],
         2,
         debug_prefix,
         "eccentricity"
     )
+    isnothing(eccentricity) && return nothing
 
     # Argument of perigee
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        argument_of_perigee,
+    argument_of_perigee = _tle_try_parse(
         Float64,
         l2[35:42],
         2,
         debug_prefix,
         "argument of perigee"
     )
+    isnothing(argument_of_perigee) && return nothing
 
     # Mean anomaly
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        mean_anomaly,
+    mean_anomaly = _tle_try_parse(
         Float64,
         l2[44:51],
         2,
         debug_prefix,
         "mean anomaly"
     )
+    isnothing(mean_anomaly) && return nothing
 
     # Mean motion
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        mean_motion,
+    mean_motion = _tle_try_parse(
         Float64,
         l2[53:63],
         2,
         debug_prefix,
         "mean motion"
     )
+    isnothing(mean_motion) && return nothing
 
     # Revolution number at epoch
     # --------------------------------------------------------------------------
 
-    @_tle_try_parse(
-        revolution_number,
+    revolution_number = _tle_try_parse(
         Int,
         l2[64:68],
         2,
         debug_prefix,
         "revolution number"
     )
+    isnothing(revolution_number) && return nothing
 
     #                              Create the TLE
     # ==========================================================================
@@ -459,14 +460,14 @@ function _verify_tle_line_checksum(
     debug_prefix::String = ""
 )
     # Try parsing the line checksum.
-    @_tle_try_parse(
-        checksum,
+    checksum = _tle_try_parse(
         Int,
         string(line[69]),
         1,
         debug_prefix,
         "line $line_number checksum"
     )
+    isnothing(checksum) && return false
 
     # Compute the expected checksum.
     expected_checksum = tle_line_checksum(@view line[1:end-1])
@@ -481,4 +482,33 @@ function _verify_tle_line_checksum(
     end
 
     return true
+end
+
+# Try to parse the `input` to type `T`.
+#
+# If the operation is successful, it returns the parsed value to `input`.
+# Otherwise, it prints an error message and returns `nothing`.
+#
+# `debug_prefix` is a string to be added to the debugging message, `line_number`
+# must be the current TLE line number (1 or 2), `field` must be the current TLE
+# field that is being parsed.
+function _tle_try_parse(
+    T::DataType,
+    input::AbstractString,
+    line_number::Int,
+    debug_prefix::String,
+    field::String
+)
+    output = tryparse(T, input)
+
+    if isnothing(output)
+        @error(
+            debug_prefix *
+            "The $(field) in the TLE line $(line_number) could not be parsed."
+        )
+
+        return nothing
+    end
+
+    return output
 end
