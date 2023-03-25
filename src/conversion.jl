@@ -214,8 +214,11 @@ function get_epoch(tle::TLE)
     epoch_year = tle.epoch_year
     epoch_day  = tle.epoch_day
 
-    epoch = epoch_year > 75 ? _EPOCH_1900_JD : _EPOCH_2000_JD
-    epoch += epoch_day - 1
+    epoch_year_dt = epoch_year > 75 ?
+        DateTime(1900 + epoch_year, 1, 1, 0, 0, 0) :
+        DateTime(2000 + epoch_year, 1, 1, 0, 0, 0)
+
+    epoch = datetime2julian(epoch_year_dt) + epoch_day - 1
 
     return epoch
 end
