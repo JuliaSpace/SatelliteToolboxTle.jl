@@ -44,19 +44,18 @@ end
 #
 # It returns the `TLE` if the information was parsed was successfully, or
 # `nothing` otherwise.
-#
-# The keyword `name` is the satellite name, `debug_prefix` is a string that
-# is added to every debugging message, and `verify_checksum` states if the
-# function should verify the line checksum.
 function _parse_tle(
     l1::AbstractString,
     l2::AbstractString;
     name::AbstractString = "UNDEFINED",
-    debug_prefix::String = "",
+    l1_position::Int = 0,
+    l2_position::Int = 0,
     verify_checksum::Bool = true
 )
     #                                First line
     # ==========================================================================
+
+    debug_prefix = l1_position == 0 ? "" : "[Line $l1_position]: "
 
     # The first line must start with "1 " and have 69 characters.
     if (l1[1:2] != "1 ") || (length(l1) != 69)
@@ -92,7 +91,7 @@ function _parse_tle(
     # International designator
     # --------------------------------------------------------------------------
 
-    international_designator = l1[10:17]
+    international_designator = strip(l1[10:17])
 
     # Epoch
     # --------------------------------------------------------------------------
@@ -157,13 +156,15 @@ function _parse_tle(
         element_set_number,
         Int,
         l1[65:68],
-        debug_prefix,
         1,
+        debug_prefix,
         "element set number"
     )
 
     #                               Second line
     # ==========================================================================
+
+    debug_prefix = l2_position == 0 ? "" : "[Line $(l2_position)]: "
 
     # The second line must start with "2 " and have 69 characters.
     if (l2[1:2] != "2 ") || (length(l2) != 69)
@@ -191,8 +192,10 @@ function _parse_tle(
         "satellite number"
     )
 
-    satellite_number_line_2 != satellite_number &&
+    if satellite_number_line_2 != satellite_number
         @error(debug_prefix * "Satellite number in line 2 is not equal to that in line 1.")
+        return nothing
+    end
 
     # Inclination
     # --------------------------------------------------------------------------
@@ -325,6 +328,8 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
 
     # Auxiliary variables.
     line_num = 0
+    l1_position = 0
+    l2_position = 0
     line = nothing
     skip_line_read = false
 
@@ -343,8 +348,6 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
         else
             skip_line_read = false
         end
-
-        debug_prefix = "[Line $line_num]: "
 
         # Check the state of the reading.
         if state === :name
@@ -384,15 +387,16 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
 
             # The first line must start with "1 " and have 69 characters.
             if (line[1:2] != "1 ") || (length(line) != 69)
-                @error(debug_prefix * "This is not a valid 1st line.")
+                @error("[Line $line_num]: This is not a valid 1st line.")
 
                 # Reset the state machine and continue.
                 state = :name
                 continue
             end
 
-            line_1 = line
-            state  = :l2
+            line_1      = line
+            l1_position = line_num
+            state       = :l2
 
         # TLE Line 2
         # ======================================================================
@@ -403,7 +407,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
 
             # The second line must start with "2 " and have 69 characters.
             if (line[1:2] != "2 ") || (length(line) != 69)
-                @error(debug_prefix * "This is not a valid 1st line.")
+                @error("[Line $line_num]: This is not a valid 2nd line.")
 
                 # Reset the state machine and continue.
                 state = :name
@@ -411,9 +415,17 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             end
 
             line_2 = line
+            l2_position = line_num
 
             # Now, we can parse the TLE.
-            tle = _parse_tle(line_1, line_2; debug_prefix, name, verify_checksum)
+            tle = _parse_tle(
+                line_1,
+                line_2;
+                l1_position,
+                l2_position,
+                name,
+                verify_checksum
+            )
 
             !isnothing(tle) && push!(vtle, tle)
 
@@ -426,7 +438,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
     # throw and exception because the file is not valid.
     if state !== :name
         @error(
-            "[Line $line_num]" *
+            "[Line $line_num]: " *
             "The last TLE in the file is incomplete."
         )
     end
