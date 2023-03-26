@@ -22,3 +22,7 @@ end
 @testset "Conversions" verbose = true begin
     include("./conversions.jl")
 end
+
+@testset "Printing" verbose = true begin
+    include("./printing.jl")
+end
