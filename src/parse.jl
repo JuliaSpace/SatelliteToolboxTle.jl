@@ -490,8 +490,8 @@ end
 # Otherwise, it prints an error message and returns `nothing`.
 #
 # `debug_prefix` is a string to be added to the debugging message, `line_number`
-# must be the current TLE line number (1 or 2), `field` must be the current TLE
-# field that is being parsed.
+# must be the current TLE line number (1 or 2), and `field` must be the current
+# TLE field that is being parsed.
 function _tle_try_parse(
     T::DataType,
     input::AbstractString,

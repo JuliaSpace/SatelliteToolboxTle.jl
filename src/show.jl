@@ -30,8 +30,10 @@ end
 
 Show the TLE `tle` in the IO `io`.
 
-If `color` is `true`, then the text will be printed using colors. If `color` is
-omitted, then it defaults to `true`.
+# Keywords
+
+- `color::Bool`: If `true`, the text will be printed using colors.
+    (**Default** = `true`)
 """
 function _show_tle(io::IO, tle::TLE; color::Bool = true)
     # Colors will be printed only for STDOUT.

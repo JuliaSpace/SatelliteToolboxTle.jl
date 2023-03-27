@@ -75,7 +75,7 @@ end
 """
     @tles_str(str)
 
-Parse a set of TLEs in the string `str` and return them as a vector of `TLE`.
+Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 
 !!! note
     This function verifies the checksums of the TLE. If the checksum
@@ -104,7 +104,7 @@ end
 """
     @tles_nc_str(str)
 
-Parse a set of TLEs in the string `str` and return them as a vector of `TLE`.
+Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 
 !!! note
     This version **does not** verify the checksum of the TLE. If the checksum
@@ -143,9 +143,11 @@ Read the TLE in the string `str`.
     `str` must contain **only** one TLE. Hence, it must have two or three
     non-empty lines. The lines beginning with the character `#` are discarded.
 
-If the keyword `verify_checksum` if `true`, then the checksum of both TLE lines
-will be verified. Otherwise, the checksum will not be checked. If
-`verify_checksum` is omitted, then it defaults to `true`.
+# Keywords
+
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
+    verified. Otherwise, the checksum will not be checked.
+    (**Default** = `true`)
 """
 function read_tle(
     str::AbstractString;
@@ -178,9 +180,11 @@ Read the TLE in which the first line is `l1` and second line is `l2`.
 The keyword `name` can be used to set the satellite name in the output TLE
 object.
 
-If the keyword `verify_checksum` if `true`, then the checksum of both TLE lines
-will be verified. Otherwise, the checksum will not be checked. If
-`verify_checksum` is omitted, then it defaults to `true`.
+# Keywords
+
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
+    verified. Otherwise, the checksum will not be checked.
+    (**Default** = `true`)
 """
 function read_tle(
     l1::AbstractString,
@@ -196,12 +200,14 @@ end
 """
     read_tles(tles::AbstractString; verify_checksum::Bool = true)
 
-Parse a set of TLEs in the string `tles`. This function returns a vector of
-`TLE` with the parsed TLEs.
+Parse a set of TLEs in the string `tles`. This function returns a `Vector{TLE}`
+with the parsed TLEs.
 
-If the keyword `verify_checksum` if `true`, then the checksum of both TLE lines
-will be verified. Otherwise, the checksum will not be checked. If
-`verify_checksum` is omitted, then it defaults to `true`.
+# Keywords
+
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
+    verified. Otherwise, the checksum will not be checked.
+    (**Default** = `true`)
 """
 function read_tles(tles::AbstractString; verify_checksum::Bool = true)
     # Convert the string to an `IOBuffer` and call the function to parse it.
@@ -211,12 +217,14 @@ end
 """
     read_tles_from_file(filename::String; verify_checksum::Bool = true)
 
-Read the TLEs in the file `filename` and return a vector of `TLE` with the
-parsed TLEs.
+Read the TLEs in the file `filename` and return a `Vector{TLE}` with the parsed
+TLEs.
 
-If the keyword `verify_checksum` if `true`, then the checksum of both TLE lines
-will be verified. Otherwise, the checksum will not be checked. If
-`verify_checksum` is omitted, then it defaults to `true`.
+# Keywords
+
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
+    verified. Otherwise, the checksum will not be checked.
+    (**Default** = `true`)
 """
 function read_tles_from_file(filename::String; verify_checksum::Bool = true)
     # Open the file in read mode.
