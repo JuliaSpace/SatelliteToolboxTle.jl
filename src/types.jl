@@ -7,7 +7,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-export TLE
+export TLE, AbstractTleFetcher
 
 """
     struct TLE
@@ -82,3 +82,10 @@ Base.@kwdef struct TLE
     mean_motion::Float64
     revolution_number::Int = 0
 end
+
+"""
+    abstract type AbstractTleFetcher
+
+Abstract type for all TLE fetchers.
+"""
+abstract type AbstractTleFetcher end

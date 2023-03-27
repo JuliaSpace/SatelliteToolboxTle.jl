@@ -1,8 +1,10 @@
 module SatelliteToolboxTle
 
 using Crayons
+using Downloads
 using Dates
 using Printf
+using URIs
 
 import Base: convert, show
 
@@ -39,5 +41,8 @@ include("checksum.jl")
 include("parse.jl")
 include("read.jl")
 include("show.jl")
+
+include("./fetcher/api.jl")
+include("./fetcher/celestrak.jl")
 
 end
