@@ -11,6 +11,10 @@ makedocs(
     authors = "Ronan Arraes Jardim Chagas",
     pages = [
         "Home" => "index.md",
+        "Usage" => [
+            "The TLE structure" => "man/tle_structure.md",
+            "Creating TLEs" => "man/creating_tles.md",
+        ],
         "Library" => "lib/library.md",
     ],
 )
