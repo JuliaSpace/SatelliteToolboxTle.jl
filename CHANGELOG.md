@@ -1,6 +1,11 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
+Version 1.0.1
+-------------
+
+- ![Bugfix][badge-bugfix] Minor documentation fix.
+
 Version 1.0.0
 -------------
 
