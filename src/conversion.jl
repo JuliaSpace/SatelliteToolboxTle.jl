@@ -7,7 +7,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-export get_epoch
+export tle_epoch
 
 ################################################################################
 #                                  Overloads
@@ -206,11 +206,11 @@ end
 ################################################################################
 
 """
-    get_epoch(tle::TLE)
+    tle_epoch(tle::TLE)
 
 Return the Julian day related to the `tle` epoch.
 """
-function get_epoch(tle::TLE)
+function tle_epoch(tle::TLE)
     epoch_year = tle.epoch_year
     epoch_day  = tle.epoch_day
 
@@ -224,11 +224,11 @@ function get_epoch(tle::TLE)
 end
 
 """
-    get_epoch(DateTime, tle::TLE)
+    tle_epoch(DateTime, tle::TLE)
 
 Return the `DateTime` related to the `tle` epoch.
 """
-function get_epoch(::Type{DateTime}, tle::TLE)
+function tle_epoch(::Type{DateTime}, tle::TLE)
     epoch_year       = tle.epoch_year
     epoch_day        = tle.epoch_day
     i_epoch_day      = floor(Int, epoch_day)

@@ -12,7 +12,7 @@
 ################################################################################
 
 function show(io::IO, tle::TLE)
-    print(io, "TLE: ", tle.name, " (Epoch = ", get_epoch(DateTime, tle), ")")
+    print(io, "TLE: ", tle.name, " (Epoch = ", tle_epoch(DateTime, tle), ")")
     return nothing
 end
 
@@ -49,7 +49,7 @@ function _show_tle(io::IO, tle::TLE; color::Bool = true)
     international_designator = tle.international_designator
     epoch_year               = tle.epoch_year
     epoch_day                = tle.epoch_day
-    epoch_datetime           = get_epoch(DateTime, tle)
+    epoch_datetime           = tle_epoch(DateTime, tle)
     element_set_number       = tle.element_set_number
     dn_o2                    = tle.dn_o2
     ddn_o6                   = tle.ddn_o6

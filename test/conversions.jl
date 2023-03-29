@@ -54,10 +54,10 @@
     end
 end
 
-# Function get_epoch
+# Function tle_epoch
 # ==============================================================================
 
-@testset "Function get_epoch" begin
+@testset "Function tle_epoch" begin
     tle = tle"""
     AMAZONIA 1
     1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
@@ -66,6 +66,6 @@ end
 
     expected_epoch_dt = DateTime(2023, 3, 24, 16, 28, 40, 388)
 
-    @test get_epoch(tle)            ≈ datetime2julian(expected_epoch_dt)
-    @test get_epoch(DateTime, tle) == expected_epoch_dt
+    @test tle_epoch(tle)            ≈ datetime2julian(expected_epoch_dt)
+    @test tle_epoch(DateTime, tle) == expected_epoch_dt
 end
