@@ -12,8 +12,11 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Usage" => [
-            "The TLE structure" => "man/tle_structure.md",
-            "Creating TLEs" => "man/creating_tles.md",
+            "The TLE structure"   => "man/tle_structure.md",
+            "Creating TLEs"       => "man/creating_tles.md",
+            "Parsing TLEs"        => "man/parsing_tles.md",
+            "Fetching TLEs"       => "man/fetching_tles.md",
+            "Auxiliary functions" => "man/auxiliary_functions.md"
         ],
         "Library" => "lib/library.md",
     ],

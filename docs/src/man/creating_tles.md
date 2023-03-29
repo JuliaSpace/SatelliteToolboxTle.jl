@@ -24,7 +24,7 @@ required:
 The algorithm assigns default values for the other fields if they are not
 present.
     
-```jldoctest
+```jldoctest creating_tle
 julia> tle = TLE(
            name = "My satellite",
            epoch_year = 23,
@@ -52,4 +52,14 @@ TLE:
                        B* : 0.000000 1/[er]
                     ṅ / 2 : 0.000000 rev/day²
                     n̈ / 6 : 0.000000 rev/day³
+```
+
+The text representation of the TLE can be obtained by converting the object to a
+string using `convert`:
+
+```jldoctest creating_tle
+julia> convert(String, tle) |> print
+My satellite
+1 00000U 00000    23001.50000000  .00000000  00000+0  00000+0 0    02
+2 00000  98.4050 220.1900 0010000  90.0000   0.0000 14.40000000    01
 ```

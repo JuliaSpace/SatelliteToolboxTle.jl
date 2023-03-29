@@ -46,8 +46,8 @@ found, it returns `nothing`.
 - `satellite_number::Union{Nothing, Number}`: Satellite catalog number (NORAD).
     (**Default** = `nothing`)
 - `satellite_name::Union{Nothing, AbstractString}`: Satellite name. Notice that
-    the system will search for all satellites which the names contains this
-    string. (**Default**: `nothing`)
+    the system will search for all satellites whose name contains this string.
+    (**Default**: `nothing`)
 
 !!! note
     Only one search parameter is supported. If more than one is given, the
