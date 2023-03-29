@@ -66,7 +66,7 @@ julia> fetch_tles(f, international_designator = "2021-015")
  TLE: SDSAT (Epoch = 2023-03-28T13:22:20.912)
 ```
 
-!!! warn
+!!! warning
     Please, **DO NOT** abuse the fetching system. CelesTrak is a non-profit
     organization.
     [SatelliteToolboxTle.jl](https://github.com/juliaspace/SatelliteToolboxTle.jl)
