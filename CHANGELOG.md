@@ -1,9 +1,24 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
+Version 1.0.0
+-------------
+
+- ![BREAKING][badge-breaking] The function `get_epoch` was renamed to
+  `get_tle_epoch`.
+- ![Feature][badge-feature] We now have support to fetch TLEs from on-line
+  sources. Currently, only CelesTrak is supported by default.
+
 Version 0.1.0
 -------------
 
 - Initial version.
   - This version was based on the submodule in **SatelliteToolbox.jl**. However,
     many API changes were implemented.
+
+[badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
+[badge-deprecation]: https://img.shields.io/badge/Deprecation-orange.svg
+[badge-feature]: https://img.shields.io/badge/Feature-green.svg
+[badge-enhancement]: https://img.shields.io/badge/Enhancement-blue.svg
+[badge-bugfix]: https://img.shields.io/badge/Bugfix-purple.svg
+[badge-info]: https://img.shields.io/badge/Info-gray.svg
