@@ -1,6 +1,14 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
+Version 1.0.2
+-------------
+
+- ![Enhancement][badge-enhancement] We added precompilation statements to improve
+  performance.
+- ![Enhancement][badge-enhancement] The code was refactored to follow BlueStyle, and
+  line-width was increase to 92, leading to a better source-code organization.
+
 Version 1.0.1
 -------------
 
