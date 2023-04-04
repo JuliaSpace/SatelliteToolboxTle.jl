@@ -4,6 +4,7 @@ using Crayons
 using Downloads
 using Dates
 using Printf
+using SnoopPrecompile
 using URIs
 
 import Base: convert, show
@@ -44,5 +45,7 @@ include("show.jl")
 
 include("./fetcher/api.jl")
 include("./fetcher/celestrak.jl")
+
+include("precompile.jl")
 
 end
