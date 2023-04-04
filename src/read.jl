@@ -1,33 +1,33 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # Description
-# ==============================================================================
+# ==========================================================================================
 #
 #   Functions to read TLE from different sources.
 #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 export @tle_str, @tle_nc_str, @tles_str, @tles_nc_str
 export read_tle, read_tles, read_tles_from_file
 
-################################################################################
-#                                    Macros
-################################################################################
+############################################################################################
+#                                          Macros
+############################################################################################
 
 """
-    @tle_str(str)
+    @tle_str(str) -> TLE
 
 Parse one TLE in the string `str.
 
 This function returns the parsed TLE or `nothing`, if an error occured.
 
 !!! note
-    This function verifies the checksums of the TLE. If the checksum
-    verification is not desired, use [`@tle_nc_str`](@ref).
+    This function verifies the checksums of the TLE. If the checksum verification is not
+    desired, use [`@tle_nc_str`](@ref).
 
 !!! note
-    `str` must contain **only** one TLE. Hence, it must have two or three
-    non-empty lines. The lines beginning with the character `#` are discarded.
+    `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
+    The lines beginning with the character `#` are discarded.
 
 # Example
 
@@ -44,19 +44,19 @@ macro tle_str(str)
 end
 
 """
-    @tle_nc_str(str)
+    @tle_nc_str(str) -> TLE
 
 Parse one TLE in the string `str.
 
 This function returns the parsed TLE or `nothing`, if an error occured.
 
 !!! note
-    This function **does not** verify the checksums of the TLE. If the checksum
-    verification is desired, use [`@tle_str`](@ref).
+    This function **does not** verify the checksums of the TLE. If the checksum verification
+    is desired, use [`@tle_str`](@ref).
 
 !!! note
-    `str` must contain **only** one TLE. Hence, it must have two or three
-    non-empty lines. The lines beginning with the character `#` are discarded.
+    `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
+    The lines beginning with the character `#` are discarded.
 
 # Example
 
@@ -73,13 +73,13 @@ macro tle_nc_str(str)
 end
 
 """
-    @tles_str(str)
+    @tles_str(str) -> Vector{TLE}
 
 Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 
 !!! note
-    This function verifies the checksums of the TLE. If the checksum
-    verification is not desired, use [`@tles_nc_str`](@ref).
+    This function verifies the checksums of the TLE. If the checksum verification is not
+    desired, use [`@tles_nc_str`](@ref).
 
 # Example
 
@@ -102,13 +102,13 @@ macro tles_str(str)
 end
 
 """
-    @tles_nc_str(str)
+    @tles_nc_str(str) -> Vector{TLE}
 
 Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 
 !!! note
-    This version **does not** verify the checksum of the TLE. If the checksum
-    verification is required, use [`@tles_nc_str`](@ref).
+    This version **does not** verify the checksum of the TLE. If the checksum verification
+    is required, use [`@tles_nc_str`](@ref).
 
 # Example
 
@@ -130,24 +130,23 @@ macro tles_nc_str(str)
     return read_tles(str; verify_checksum = false)
 end
 
-################################################################################
-#                                  Functions
-################################################################################
+############################################################################################
+#                                        Functions
+############################################################################################
 
 """
-    read_tle(str::AbstractString; verify_checksum::Bool = false)
+    read_tle(str::AbstractString; verify_checksum::Bool = false) -> TLE
 
 Read the TLE in the string `str`.
 
 !!! note
-    `str` must contain **only** one TLE. Hence, it must have two or three
-    non-empty lines. The lines beginning with the character `#` are discarded.
+    `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
+    The lines beginning with the character `#` are discarded.
 
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
-    verified. Otherwise, the checksum will not be checked.
-    (**Default** = `true`)
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
+    Otherwise, the checksum will not be checked. (**Default** = `true`)
 """
 function read_tle(
     str::AbstractString;
@@ -173,18 +172,16 @@ function read_tle(
 end
 
 """
-    read_tle(l1::AbstractString, l2::AbstractString; name::AbstractString = "UNDEFINED", verify_checksum::Bool = false)
+    read_tle(l1::AbstractString, l2::AbstractString; kwargs...) -> TLE
 
 Read the TLE in which the first line is `l1` and second line is `l2`.
 
-The keyword `name` can be used to set the satellite name in the output TLE
-object.
-
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
-    verified. Otherwise, the checksum will not be checked.
-    (**Default** = `true`)
+- `name::AbstractString`: The satellite name in the returned TLE object.
+    (**Default** = "UNDEFINED")
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
+    Otherwise, the checksum will not be checked. (**Default** = `true`)
 """
 function read_tle(
     l1::AbstractString,
@@ -198,16 +195,15 @@ function read_tle(
 end
 
 """
-    read_tles(tles::AbstractString; verify_checksum::Bool = true)
+    read_tles(tles::AbstractString; verify_checksum::Bool = true) -> Vector{TLE}
 
-Parse a set of TLEs in the string `tles`. This function returns a `Vector{TLE}`
-with the parsed TLEs.
+Parse a set of TLEs in the string `tles`. This function returns a `Vector{TLE}` with the
+parsed TLEs.
 
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
-    verified. Otherwise, the checksum will not be checked.
-    (**Default** = `true`)
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
+    Otherwise, the checksum will not be checked. (**Default** = `true`)
 """
 function read_tles(tles::AbstractString; verify_checksum::Bool = true)
     # Convert the string to an `IOBuffer` and call the function to parse it.
@@ -215,16 +211,14 @@ function read_tles(tles::AbstractString; verify_checksum::Bool = true)
 end
 
 """
-    read_tles_from_file(filename::String; verify_checksum::Bool = true)
+    read_tles_from_file(filename::String; verify_checksum::Bool = true) -> Vector{TLE}
 
-Read the TLEs in the file `filename` and return a `Vector{TLE}` with the parsed
-TLEs.
+Read the TLEs in the file `filename` and return a `Vector{TLE}` with the parsed TLEs.
 
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be
-    verified. Otherwise, the checksum will not be checked.
-    (**Default** = `true`)
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
+    Otherwise, the checksum will not be checked. (**Default** = `true`)
 """
 function read_tles_from_file(filename::String; verify_checksum::Bool = true)
     # Open the file in read mode.

@@ -1,11 +1,11 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # Description
-# ==============================================================================
+# ==========================================================================================
 #
 #   Types and structures of TLE.
 #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 export TLE, AbstractTleFetcher
 
@@ -15,8 +15,8 @@ export TLE, AbstractTleFetcher
 Store the elements of a TLE (two-line elemens) using the same units.
 
 !!! note
-    We do not have fields for the line checksum since they are only required
-    when creating or parsing a TLE string.
+    We do not have fields for the line checksum since they are only required when creating
+    or parsing a TLE string.
 
 # Fields
 
@@ -46,12 +46,12 @@ Store the elements of a TLE (two-line elemens) using the same units.
 
 # Creating TLEs
 
-You can manually create a `TLE` by calling the function `TLE(; kwargs...)`,
-where `kwargs...` are keyword arguments with the same name as the fields. In
-this case, the following elements are required:
+You can manually create a `TLE` by calling the function `TLE(; kwargs...)`, where
+`kwargs...` are keyword arguments with the same name as the fields. In this case, the
+following elements are required:
 
-- `epoch_year`, `epoch_day`, `inclination`, `raan`, `eccentricity`,
-    `argument_of_perigee`, `mean_anomaly` and `mean_motion`.
+- `epoch_year`, `epoch_day`, `inclination`, `raan`, `eccentricity`, `argument_of_perigee`,
+    `mean_anomaly` and `mean_motion`.
 
 The other ones are optional and default values will be assigned if not present.
 """
@@ -59,7 +59,7 @@ Base.@kwdef struct TLE
     name::String = "UNDEFINED"
 
     # First line
-    # ==========================================================================
+    # ======================================================================================
 
     satellite_number::Int = 0
     classification::Char = 'U'
@@ -72,7 +72,7 @@ Base.@kwdef struct TLE
     element_set_number::Int = 0
 
     # Second line
-    # ==========================================================================
+    # ======================================================================================
 
     inclination::Float64
     raan::Float64

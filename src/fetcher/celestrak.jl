@@ -1,11 +1,11 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # Description
-# ==============================================================================
+# ==========================================================================================
 #
 #   Create the Celestrak TLE fetcher.
 #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 export CelestrakTleFetcher
 
@@ -14,14 +14,14 @@ struct CelestrakTleFetcher <: AbstractTleFetcher
 end
 
 """
-    create_tle_fetcher(::Type{CelestrakTleFetcher}; kwargs...) return CelestrakTleFetcher(url) end
+    create_tle_fetcher(::Type{CelestrakTleFetcher}; kwargs...) -> CelestrakTleFetcher
 
 Create a TLE fetcher from Celestrak service.
 
 # Keywords
 
-- `url::String`: Default PHP webpage address that will be used to perform the
-  queries. (**Default**: "https://celestrak.org/NORAD/elements/gp.php")
+- `url::String`: Default PHP webpage address that will be used to perform the queries.
+  (**Default**: "https://celestrak.org/NORAD/elements/gp.php")
 """
 function create_tle_fetcher(
     ::Type{CelestrakTleFetcher};
@@ -31,7 +31,7 @@ function create_tle_fetcher(
 end
 
 """
-    fetch_tles(fetcher::CelestrakTleFetcher; international_designator::Union{Nothing, AbstractString} = nothing, satellite_number::Union{Nothing, Number} = nothing, satellite_name::Union{Nothing, AbstractString} = nothing,)
+    fetch_tles(fetcher::CelestrakTleFetcher; kwargs...) -> Union{Nothing, Vector{TLE}}
 
 Fetch TLEs from the Celestrak using `fetch` with the parameters in `kwargs...`.
 
@@ -40,19 +40,17 @@ found, it returns `nothing`.
 
 # Keywords
 
-- `international_designator::Union{Nothing, AbstractString}`: International
-    designator using the Celestrak format `YYYY-NNN`, where `YYYY` is the launch
-    year, and the `NNN` is the launch number. (**Default**: `nothing`)
+- `international_designator::Union{Nothing, AbstractString}`: International designator using
+    the Celestrak format `YYYY-NNN`, where `YYYY` is the launch year, and the `NNN` is the
+    launch number. (**Default**: `nothing`)
 - `satellite_number::Union{Nothing, Number}`: Satellite catalog number (NORAD).
     (**Default** = `nothing`)
-- `satellite_name::Union{Nothing, AbstractString}`: Satellite name. Notice that
-    the system will search for all satellites whose name contains this string.
-    (**Default**: `nothing`)
+- `satellite_name::Union{Nothing, AbstractString}`: Satellite name. Notice that the system
+    will search for all satellites whose name contains this string. (**Default**: `nothing`)
 
 !!! note
-    Only one search parameter is supported. If more than one is given, the
-    precedence is: 1) `satellite_number`; 2) `international_designator`; and 3)
-    and `satellite_name`.
+    Only one search parameter is supported. If more than one is given, the precedence is: 1)
+    `satellite_number`; 2) `international_designator`; and 3) and `satellite_name`.
 
 !!! note
     If no search parameter is provided, the function throws an error.

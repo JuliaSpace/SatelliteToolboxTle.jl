@@ -5,6 +5,7 @@ SatelliteToolboxTle.jl
 [![codecov](https://codecov.io/gh/JuliaSpace/SatelliteToolboxTle.jl/branch/main/graph/badge.svg?token=SPIKBIN3ES)](https://codecov.io/gh/JuliaSpace/SatelliteToolboxTle.jl)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)][docs-stable-url]
 [![](https://img.shields.io/badge/docs-dev-blue.svg)][docs-dev-url]
+[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
 This package allows creating, fetching, and parsing TLEs (two-line elements).
 
