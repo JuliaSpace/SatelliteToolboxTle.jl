@@ -14,15 +14,13 @@ We can create a TLE using the function:
 TLE(; kwargs...)
 ```
 
-where `kwargs...` are keywords arguments with the same name as in the TLE
-fields, as explained [here](@ref tle_structure). The following elements are
-required:
+where `kwargs...` are keywords arguments with the same name as in the TLE fields, as
+explained [here](@ref tle_structure). The following elements are required:
 
-- `epoch_year`, `epoch_day`, `inclination`, `raan`, `eccentricity`,
-    `argument_of_perigee`, `mean_anomaly` and `mean_motion`.
+- `epoch_year`, `epoch_day`, `inclination`, `raan`, `eccentricity`, `argument_of_perigee`,
+    `mean_anomaly` and `mean_motion`.
 
-The algorithm assigns default values for the other fields if they are not
-present.
+The algorithm assigns default values for the other fields if they are not present.
     
 ```jldoctest creating_tle
 julia> tle = TLE(
@@ -54,8 +52,8 @@ TLE:
                      n̈ / 6 :            0 rev / day³
 ```
 
-The text representation of the TLE can be obtained by converting the object to a
-string using `convert`:
+The text representation of the TLE can be obtained by converting the object to a string
+using `convert`:
 
 ```jldoctest creating_tle
 julia> convert(String, tle) |> print

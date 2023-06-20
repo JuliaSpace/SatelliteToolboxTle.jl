@@ -1,7 +1,7 @@
 # [The TLE structure](@id tle_structure)
 
-When a TLE is parsed using this package, the information is encapsulated in the
-structure [`TLE`](@ref). Its fields are:
+When a TLE is parsed using this package, the information is encapsulated in the structure
+[`TLE`](@ref). Its fields are:
 
 - `name::String`: Name of the satellite.
 - `satellite_number::Int`: Satellite number.

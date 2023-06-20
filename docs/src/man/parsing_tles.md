@@ -38,8 +38,8 @@ TLE:
                      n̈ / 6 :        1e-09 rev / day³
 ```
 
-This macro considers only one TLE, leading to an error if the string contains
-additional information:
+This macro considers only one TLE, leading to an error if the string contains additional
+information:
 
 ```julia
 julia> tle = tle"""
@@ -78,16 +78,15 @@ julia> tles = tles"""
 In this case, the result will always be a `Vector{TLE}`.
 
 !!! note
-    We distinguished the parsing algorithm of one or multiple TLEs to avoid
-    unnecessary allocations in the former.
+    We distinguished the parsing algorithm of one or multiple TLEs to avoid unnecessary
+    allocations in the former.
 
-[`@tle_str`](@ref) and [`@tles_str`](@ref) will always check the checksum of the
-two lines. If this verification is not desired, use the versions
-[`@tle_nc_str`](@ref) and [`@tles_nc_str`](@ref).
+[`@tle_str`](@ref) and [`@tles_str`](@ref) will always check the checksum of the two lines.
+If this verification is not desired, use the versions [`@tle_nc_str`](@ref) and
+[`@tles_nc_str`](@ref).
 
-If the TLE is programmatically added to a string, it can be parsed using the
-functions [`read_tle`](@ref) and [`read_tles`](@ref) for one or multiple TLEs,
-respectively.
+If the TLE is programmatically added to a string, it can be parsed using the functions
+[`read_tle`](@ref) and [`read_tles`](@ref) for one or multiple TLEs, respectively.
 
 ```jldoctest
 julia> tle_str = """
@@ -129,8 +128,7 @@ julia> tles = read_tles(tles_str)
  TLE: CBERS 4A (Epoch = 2023-03-28T12:59:01.171)
 ```
 
-If the user does not want checksum verification, pass the keyword
-`verify_checksum = false`.
+If the user does not want checksum verification, pass the keyword `verify_checksum = false`.
 
 ## Parsing TLEs from files
 

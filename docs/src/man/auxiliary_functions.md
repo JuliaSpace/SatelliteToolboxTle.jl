@@ -12,8 +12,8 @@ This page describes some auxiliary functions in [SatelliteToolboxTle.jl](https:/
 
 ## TLE epoch
 
-We can obtain the TLE epoch using the function [`tle_epoch`](@ref). It can
-return the epoch in Julian Day, or as a `DateTime`, as follows:
+We can obtain the TLE epoch using the function [`tle_epoch`](@ref). It can return the epoch
+in Julian Day, or as a `DateTime`, as follows:
 
 ```jldoctest
 julia> tle = tle"""
