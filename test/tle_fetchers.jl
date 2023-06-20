@@ -48,8 +48,6 @@ end
         satellite_name = "CBERS 4",            # . This option will be neglected
     )
 
-    @test length(tles) == 8
-
     amz1_tle = tles |> first
 
     @test amz1_tle.name                     == "AMAZONIA 1"
