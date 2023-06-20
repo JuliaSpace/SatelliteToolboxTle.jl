@@ -4,6 +4,12 @@ SatelliteToolboxTle.jl Changelog
 Version 1.0.2
 -------------
 
+- ![Enhancement][badge-enhancement] The TLE printing system was improved. Notice that the
+  screen output format has changed, but we do not consider those as breaking changes.
+
+Version 1.0.2
+-------------
+
 - ![Enhancement][badge-enhancement] We added precompilation statements to improve
   performance.
 - ![Enhancement][badge-enhancement] The code was refactored to follow BlueStyle, and
