@@ -49,10 +49,10 @@ end
            Argument of perigee : 136.20170000 deg
                   Mean anomaly : 223.92830000 deg
                Mean motion (n) :  14.40814394 revs / day
-             Revolution number :        10865
-                            B* :     0.000043 1 / er
-                         ṅ / 2 :    -0.000000 rev / day²
-                         n̈ / 6 :     0.000000 rev / day³"""
+             Revolution number : 10865
+                            B* :      4.3e-05 1 / er
+                         ṅ / 2 :     -4.4e-07 rev / day²
+                         n̈ / 6 :        1e-09 rev / day³"""
 
     buf = IOBuffer()
     show(buf, MIME("text/plain"), tle)
@@ -76,10 +76,10 @@ end
     \e[1m       Argument of perigee : \e[0m136.20170000 deg
     \e[1m              Mean anomaly : \e[0m223.92830000 deg
     \e[1m           Mean motion (n) : \e[0m 14.40814394 revs / day
-    \e[1m         Revolution number : \e[0m       10865
-    \e[1m                        B* : \e[0m    0.000043 1 / er
-    \e[1m                     ṅ / 2 : \e[0m   -0.000000 rev / day²
-    \e[1m                     n̈ / 6 : \e[0m    0.000000 rev / day³"""
+    \e[1m         Revolution number : \e[0m10865
+    \e[1m                        B* : \e[0m     4.3e-05 1 / er
+    \e[1m                     ṅ / 2 : \e[0m    -4.4e-07 rev / day²
+    \e[1m                     n̈ / 6 : \e[0m       1e-09 rev / day³"""
 
     buf = IOBuffer()
     io = IOContext(buf, :color => true)

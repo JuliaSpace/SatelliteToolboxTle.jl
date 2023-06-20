@@ -75,10 +75,10 @@ function _show_tle(io::IO, tle::TLE; color::Bool = true)
     print(io, "$(b)       Argument of perigee : $(d)"); @printf(io, "%12.8f deg\n",        argument_of_perigee)
     print(io, "$(b)              Mean anomaly : $(d)"); @printf(io, "%12.8f deg\n",        mean_anomaly)
     print(io, "$(b)           Mean motion (n) : $(d)"); @printf(io, "%12.8f revs / day\n", mean_motion)
-    print(io, "$(b)         Revolution number : $(d)"); @printf(io, "%12d\n",              revolution_number)
-    print(io, "$(b)                        B* : $(d)"); @printf(io, "%12f 1 / er\n",       bstar)
-    print(io, "$(b)                     ṅ / 2 : $(d)"); @printf(io, "%12f rev / day²\n",   dn_o2)
-    print(io, "$(b)                     n̈ / 6 : $(d)"); @printf(io, "%12f rev / day³",     ddn_o6)
+    print(io, "$(b)         Revolution number : $(d)"); @printf(io, "%d\n",                revolution_number)
+    print(io, "$(b)                        B* : $(d)"); @printf(io, "%12g 1 / er\n",       bstar)
+    print(io, "$(b)                     ṅ / 2 : $(d)"); @printf(io, "%12g rev / day²\n",   dn_o2)
+    print(io, "$(b)                     n̈ / 6 : $(d)"); @printf(io, "%12g rev / day³",     ddn_o6)
 
     return nothing
 end
