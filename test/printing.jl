@@ -38,21 +38,21 @@ end
 
     expected = """
     TLE:
-                         Name : AMAZONIA 1
-             Satellite number : 47699
-     International designator : 21015A
-           Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
-           Element set number : 999
-                 Eccentricity :   0.00012470 deg
-                  Inclination :  98.43040000 deg
-                         RAAN : 162.10970000 deg
-          Argument of perigee : 136.20170000 deg
-                 Mean anomaly : 223.92830000 deg
-              Mean motion (n) :  14.40814394 revs/day
-            Revolution number : 10865
-                           B* : 0.000043 1/[er]
-                        ṅ / 2 : -0.000000 rev/day²
-                        n̈ / 6 : 0.000000 rev/day³"""
+                          Name : AMAZONIA 1
+              Satellite number : 47699
+      International designator : 21015A
+            Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
+            Element set number : 999
+                  Eccentricity :   0.00012470
+                   Inclination :  98.43040000 deg
+                          RAAN : 162.10970000 deg
+           Argument of perigee : 136.20170000 deg
+                  Mean anomaly : 223.92830000 deg
+               Mean motion (n) :  14.40814394 revs / day
+             Revolution number :        10865
+                            B* :     0.000043 1 / er
+                         ṅ / 2 :    -0.000000 rev / day²
+                         n̈ / 6 :     0.000000 rev / day³"""
 
     buf = IOBuffer()
     show(buf, MIME("text/plain"), tle)
@@ -65,21 +65,21 @@ end
 
     expected = """
     TLE:
-    \e[1m                     Name : \e[0mAMAZONIA 1
-    \e[1m         Satellite number : \e[0m47699
-    \e[1m International designator : \e[0m21015A
-    \e[1m       Epoch (Year / Day) : \e[0m23 /  83.68657856 (2023-03-24T16:28:40.388)
-    \e[1m       Element set number : \e[0m999
-    \e[1m             Eccentricity : \e[0m  0.00012470 deg
-    \e[1m              Inclination : \e[0m 98.43040000 deg
-    \e[1m                     RAAN : \e[0m162.10970000 deg
-    \e[1m      Argument of perigee : \e[0m136.20170000 deg
-    \e[1m             Mean anomaly : \e[0m223.92830000 deg
-    \e[1m          Mean motion (n) : \e[0m 14.40814394 revs/day
-    \e[1m        Revolution number : \e[0m10865
-    \e[1m                       B* : \e[0m0.000043 1/[er]
-    \e[1m                    ṅ / 2 : \e[0m-0.000000 rev/day²
-    \e[1m                    n̈ / 6 : \e[0m0.000000 rev/day³"""
+    \e[1m                      Name : \e[0mAMAZONIA 1
+    \e[1m          Satellite number : \e[0m47699
+    \e[1m  International designator : \e[0m21015A
+    \e[1m        Epoch (Year / Day) : \e[0m23 /  83.68657856 (2023-03-24T16:28:40.388)
+    \e[1m        Element set number : \e[0m999
+    \e[1m              Eccentricity : \e[0m  0.00012470
+    \e[1m               Inclination : \e[0m 98.43040000 deg
+    \e[1m                      RAAN : \e[0m162.10970000 deg
+    \e[1m       Argument of perigee : \e[0m136.20170000 deg
+    \e[1m              Mean anomaly : \e[0m223.92830000 deg
+    \e[1m           Mean motion (n) : \e[0m 14.40814394 revs / day
+    \e[1m         Revolution number : \e[0m       10865
+    \e[1m                        B* : \e[0m    0.000043 1 / er
+    \e[1m                     ṅ / 2 : \e[0m   -0.000000 rev / day²
+    \e[1m                     n̈ / 6 : \e[0m    0.000000 rev / day³"""
 
     buf = IOBuffer()
     io = IOContext(buf, :color => true)
