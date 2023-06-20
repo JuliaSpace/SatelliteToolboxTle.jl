@@ -37,21 +37,21 @@ julia> tle = TLE(
            mean_motion = 14.4
        )
 TLE:
-                     Name : My satellite
-         Satellite number : 0
- International designator : 00000
-       Epoch (Year / Day) : 23 /   1.50000000 (2023-01-01T12:00:00)
-       Element set number : 0
-             Eccentricity :   0.00100000 deg
-              Inclination :  98.40500000 deg
-                     RAAN : 220.19000000 deg
-      Argument of perigee :  90.00000000 deg
-             Mean anomaly :   0.00000000 deg
-          Mean motion (n) :  14.40000000 revs/day
-        Revolution number : 0
-                       B* : 0.000000 1/[er]
-                    ṅ / 2 : 0.000000 rev/day²
-                    n̈ / 6 : 0.000000 rev/day³
+                      Name : My satellite
+          Satellite number : 0
+  International designator : 00000
+        Epoch (Year / Day) : 23 /   1.50000000 (2023-01-01T12:00:00)
+        Element set number : 0
+              Eccentricity :   0.00100000
+               Inclination :  98.40500000 deg
+                      RAAN : 220.19000000 deg
+       Argument of perigee :  90.00000000 deg
+              Mean anomaly :   0.00000000 deg
+           Mean motion (n) :  14.40000000 revs / day
+         Revolution number : 0
+                        B* :            0 1 / er
+                     ṅ / 2 :            0 rev / day²
+                     n̈ / 6 :            0 rev / day³
 ```
 
 The text representation of the TLE can be obtained by converting the object to a

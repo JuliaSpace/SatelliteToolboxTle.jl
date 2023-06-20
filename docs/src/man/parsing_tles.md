@@ -21,21 +21,21 @@ julia> tle = tle"""
        2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
        """
 TLE:
-                     Name : AMAZONIA 1
-         Satellite number : 47699
- International designator : 21015A
-       Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
-       Element set number : 999
-             Eccentricity :   0.00012470 deg
-              Inclination :  98.43040000 deg
-                     RAAN : 162.10970000 deg
-      Argument of perigee : 136.20170000 deg
-             Mean anomaly : 223.92830000 deg
-          Mean motion (n) :  14.40814394 revs/day
-        Revolution number : 10865
-                       B* : 0.000043 1/[er]
-                    ṅ / 2 : -0.000000 rev/day²
-                    n̈ / 6 : 0.000000 rev/day³
+                      Name : AMAZONIA 1
+          Satellite number : 47699
+  International designator : 21015A
+        Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
+        Element set number : 999
+              Eccentricity :   0.00012470
+               Inclination :  98.43040000 deg
+                      RAAN : 162.10970000 deg
+       Argument of perigee : 136.20170000 deg
+              Mean anomaly : 223.92830000 deg
+           Mean motion (n) :  14.40814394 revs / day
+         Revolution number : 10865
+                        B* :      4.3e-05 1 / er
+                     ṅ / 2 :     -4.4e-07 rev / day²
+                     n̈ / 6 :        1e-09 rev / day³
 ```
 
 This macro considers only one TLE, leading to an error if the string contains
@@ -98,21 +98,21 @@ julia> tle_str = """
 
 julia> read_tle(tle_str)
 TLE:
-                     Name : AMAZONIA 1
-         Satellite number : 47699
- International designator : 21015A
-       Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
-       Element set number : 999
-             Eccentricity :   0.00012470 deg
-              Inclination :  98.43040000 deg
-                     RAAN : 162.10970000 deg
-      Argument of perigee : 136.20170000 deg
-             Mean anomaly : 223.92830000 deg
-          Mean motion (n) :  14.40814394 revs/day
-        Revolution number : 10865
-                       B* : 0.000043 1/[er]
-                    ṅ / 2 : -0.000000 rev/day²
-                    n̈ / 6 : 0.000000 rev/day³
+                      Name : AMAZONIA 1
+          Satellite number : 47699
+  International designator : 21015A
+        Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
+        Element set number : 999
+              Eccentricity :   0.00012470
+               Inclination :  98.43040000 deg
+                      RAAN : 162.10970000 deg
+       Argument of perigee : 136.20170000 deg
+              Mean anomaly : 223.92830000 deg
+           Mean motion (n) :  14.40814394 revs / day
+         Revolution number : 10865
+                        B* :      4.3e-05 1 / er
+                     ṅ / 2 :     -4.4e-07 rev / day²
+                     n̈ / 6 :        1e-09 rev / day³
 
 julia> tles_str = """
        AMAZONIA 1
