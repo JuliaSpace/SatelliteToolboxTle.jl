@@ -1,7 +1,13 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
-Version 1.0.2
+Version 1.0.4
+-------------
+
+- ![Enhancement][badge-enhancement] **SnoopPrecompile.jl** was replaced by
+  **PrecompileTools.jl**.
+
+Version 1.0.3
 -------------
 
 - ![Enhancement][badge-enhancement] The TLE printing system was improved. Notice that the
