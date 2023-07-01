@@ -7,9 +7,9 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import SnoopPrecompile
+import PrecompileTools
 
-SnoopPrecompile.@precompile_all_calls begin
+PrecompileTools.@compile_workload begin
     ########################################################################################
     #                                 Parsing and Reading
     ########################################################################################

@@ -4,7 +4,6 @@ using Crayons
 using Downloads
 using Dates
 using Printf
-using SnoopPrecompile
 using URIs
 
 import Base: convert, show
