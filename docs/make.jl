@@ -7,7 +7,7 @@ makedocs(
         prettyurls = !("local" in ARGS),
         canonical = "https://juliaspace.github.io/SatelliteToolboxTle.jl/stable/",
     ),
-    sitename = "Satellite Toolbox TLE",
+    sitename = "SatelliteToolboxTle.jl",
     authors = "Ronan Arraes Jardim Chagas",
     pages = [
         "Home" => "index.md",
