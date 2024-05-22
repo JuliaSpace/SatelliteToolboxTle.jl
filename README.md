@@ -3,21 +3,21 @@
   <small><i>This package is part of the <a href="https://github.com/JuliaSpace/SatelliteToolbox.jl">SatelliteToolbox.jl</a> ecosystem.</i></small>
 </p>
 
-SatelliteToolboxTle.jl
-======================
+# SatelliteToolboxTle.jl
 
 [![CI](https://github.com/JuliaSpace/SatelliteToolboxTle.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/JuliaSpace/SatelliteToolboxTle.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/JuliaSpace/SatelliteToolboxTle.jl/branch/main/graph/badge.svg?token=SPIKBIN3ES)](https://codecov.io/gh/JuliaSpace/SatelliteToolboxTle.jl)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)][docs-stable-url]
-[![](https://img.shields.io/badge/docs-dev-blue.svg)][docs-dev-url]
+[![docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)][docs-stable-url]
+[![docs-dev](https://img.shields.io/badge/docs-dev-blue.svg)][docs-dev-url]
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+[![DOI](https://zenodo.org/badge/618829467.svg)](https://zenodo.org/doi/10.5281/zenodo.11245282)
 
 This package allows creating, fetching, and parsing TLEs (two-line elements).
 
 ## Two-line elements
 
 The TLE, or two-line elements, is a fixed-width format that express the mean
-elements of a object in Earth's orbit. They are used as input for the Simplified
+elements of a object en Earth's orbit. They are used as input for the Simplified
 General Perturbation Model 4 (SGP4 / SDP4) to propagate satellite orbits.
 
 For more information about the TLE, see
