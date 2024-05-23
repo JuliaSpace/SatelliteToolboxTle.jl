@@ -31,7 +31,7 @@ function _parse_tle(
         return nothing
     end
 
-    # -- Verify the Checksum. --------------------------------------------------------------
+    # -- Verify the Checksum ---------------------------------------------------------------
 
     if verify_checksum && !_verify_tle_line_checksum(l1, 1; debug_prefix = debug_prefix)
         return nothing
@@ -122,7 +122,7 @@ function _parse_tle(
         return nothing
     end
 
-    # -- Verify the Checksum. --------------------------------------------------------------
+    # -- Verify the Checksum ---------------------------------------------------------------
 
     if verify_checksum && !_verify_tle_line_checksum(l2, 2; debug_prefix = debug_prefix)
         return nothing
@@ -138,14 +138,12 @@ function _parse_tle(
         return nothing
     end
 
-    # Inclination
-    # --------------------------------------------------------------------------------------
+    # -- Inclination -----------------------------------------------------------------------
 
     inclination = _tle_try_parse(Float64, l2[9:16], 2, debug_prefix, "inclination")
     isnothing(inclination) && return nothing
 
-    # RAAN
-    # --------------------------------------------------------------------------------------
+    # -- RAAN ------------------------------------------------------------------------------
 
     raan = _tle_try_parse(
         Float64,
@@ -156,14 +154,12 @@ function _parse_tle(
     )
     isnothing(raan) && return nothing
 
-    # Eccentricity
-    # --------------------------------------------------------------------------------------
+    # -- Eccentricity ----------------------------------------------------------------------
 
     eccentricity = _tle_try_parse(Float64, "." * l2[27:33], 2, debug_prefix, "eccentricity")
     isnothing(eccentricity) && return nothing
 
-    # Argument of perigee
-    # --------------------------------------------------------------------------------------
+    # -- Argument of Perigee ---------------------------------------------------------------
 
     argument_of_perigee = _tle_try_parse(
         Float64,
@@ -174,26 +170,22 @@ function _parse_tle(
     )
     isnothing(argument_of_perigee) && return nothing
 
-    # Mean anomaly
-    # --------------------------------------------------------------------------------------
+    # -- Mean Anomaly ----------------------------------------------------------------------
 
     mean_anomaly = _tle_try_parse(Float64, l2[44:51], 2, debug_prefix, "mean anomaly")
     isnothing(mean_anomaly) && return nothing
 
-    # Mean motion
-    # --------------------------------------------------------------------------------------
+    # -- Mean Motion -----------------------------------------------------------------------
 
     mean_motion = _tle_try_parse(Float64, l2[53:63], 2, debug_prefix, "mean motion")
     isnothing(mean_motion) && return nothing
 
-    # Revolution number at epoch
-    # --------------------------------------------------------------------------------------
+    # -- Revolution Number at Epoch --------------------------------------------------------
 
     revolution_number = _tle_try_parse(Int, l2[64:68], 2, debug_prefix, "revolution number")
     isnothing(revolution_number) && return nothing
 
-    #                                    Create the TLE
-    # ======================================================================================
+    # == Create the TLE ====================================================================
 
     # Now we can create the TLE.
     return TLE(
@@ -287,8 +279,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             name  = line
             state = :l1
 
-        # TLE Line 1
-        # ==================================================================================
+        # == TLE Line 1 ====================================================================
 
         elseif state === :l1
             # The next non-blank line must be the first line of the TLE.  Otherwise, the
@@ -307,8 +298,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             l1_position = line_num
             state       = :l2
 
-        # TLE Line 2
-        # ==================================================================================
+        # == TLE Line 2 ====================================================================
 
         elseif state === :l2
             # The next non-blank line must be the second line of the TLE.  Otherwise, the
