@@ -1,11 +1,8 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==========================================================================================
+# Types and structures of TLE.
 #
-#   Types and structures of TLE.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
 export TLE, AbstractTleFetcher
 
@@ -15,6 +12,7 @@ export TLE, AbstractTleFetcher
 Store the elements of a TLE (two-line elemens) using the same units.
 
 !!! note
+
     We do not have fields for the line checksum since they are only required when creating
     or parsing a TLE string.
 
@@ -58,8 +56,7 @@ The other ones are optional and default values will be assigned if not present.
 Base.@kwdef struct TLE
     name::String = "UNDEFINED"
 
-    # First line
-    # ======================================================================================
+    # == First Line ========================================================================
 
     satellite_number::Int = 0
     classification::Char = 'U'
@@ -71,8 +68,7 @@ Base.@kwdef struct TLE
     bstar::Float64 = 0
     element_set_number::Int = 0
 
-    # Second line
-    # ======================================================================================
+    # == Second Line =======================================================================
 
     inclination::Float64
     raan::Float64

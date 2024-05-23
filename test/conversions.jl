@@ -1,19 +1,12 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==============================================================================
+# Test conversions related to TLEs.
 #
-#   Test conversions related to TLEs.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
-# Conversion to string
-# ==============================================================================
+# == Conversion to String ==================================================================
 
 @testset "Conversion TLE => String" begin
-    # Conversion to string
-    # ==========================================================================
-
     tles = read_tles_from_file("./tles_20200122.tle")
     f    = open("./tles_20200122.tle", "r")
 
@@ -22,15 +15,13 @@
         stri_l1   = readline(f)
         stri_l2   = readline(f)
 
-        # The TLE for AMOS-4 has a `-` before the first time
-        # derivative, even though it is 0. Since this is happening only here,
-        # we will skip this case.
+        # The TLE for AMOS-4 has a `-` before the first time derivative, even though it is
+        # 0. Since this is happening only here, we will skip this case.
         tles[i].satellite_number == 39237 && continue
 
-        # The conversion of the exponent signal of the second derivative of the
-        # mean motion and BSTAR does not have a defined pattern if they are 0.
-        # We will always using '+'. Hence, if the current TLE uses `-`, we need
-        # to change it and update the checksum.
+        # The conversion of the exponent signal of the second derivative of the mean motion
+        # and BSTAR does not have a defined pattern if they are 0. We will always using '+'.
+        # Hence, if the current TLE uses `-`, we need to change it and update the checksum.
 
         if (tles[i].ddn_o6 == 0) && (stri_l1[51] == '-')
             stri_l1  = stri_l1[1:50] * "+" * stri_l1[52:end-1]
@@ -44,8 +35,7 @@
 
         stri = stri_name * "\n" * stri_l1 * "\n" * stri_l2
 
-        # If the OS is Windows, then we should remove `\r` to avoid testing
-        # failure.
+        # If the OS is Windows, we should remove `\r` to avoid testing failure.
         Sys.iswindows() && (stri = replace(stri, "\r" => ""))
 
         strf = convert(String, tles[i])
@@ -54,10 +44,9 @@
     end
 end
 
-# Function tle_epoch
-# ==============================================================================
+# == Function: tle_epoch ===================================================================
 
-@testset "Function tle_epoch" begin
+@testset "Function: tle_epoch" begin
     tle = tle"""
     AMAZONIA 1
     1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990

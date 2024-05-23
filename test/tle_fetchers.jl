@@ -1,14 +1,10 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==============================================================================
+# Tests related to the TLE fetchers.
 #
-#   Tests related to the TLE fetchers.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
-# API
-# ==============================================================================
+# == API ===================================================================================
 
 struct MyTleFetcher <: AbstractTleFetcher end
 
@@ -17,14 +13,12 @@ struct MyTleFetcher <: AbstractTleFetcher end
     @test_throws ErrorException fetch_tles(MyTleFetcher())
 end
 
-# Celestrak
-# ==============================================================================
+# == Celestrak =============================================================================
 
 @testset "Celestrak TLE fetcher" begin
     f = create_tle_fetcher(CelestrakTleFetcher)
 
-    # Search by satellite number
-    # ==========================================================================
+    # == Search By Satellite Number ========================================================
 
     tles = fetch_tles(f;
         satellite_number = 47699,
@@ -40,8 +34,7 @@ end
     @test amz1_tle.international_designator == "21015A"
     @test amz1_tle.satellite_number         == 47699
 
-    # Search by international designator
-    # ==========================================================================
+    # == Search By International Designator ================================================
 
     tles = fetch_tles(f;
         international_designator = "2021-015",
@@ -54,8 +47,7 @@ end
     @test amz1_tle.international_designator == "21015A"
     @test amz1_tle.satellite_number         == 47699
 
-    # Search by satellite name
-    # ==========================================================================
+    # == Search By Satellite Name ==========================================================
 
     tles = fetch_tles(f; satellite_name = "AMAZONIA 1")
 
@@ -67,8 +59,7 @@ end
     @test amz1_tle.international_designator == "21015A"
     @test amz1_tle.satellite_number         == 47699
 
-    # No data found
-    # ==========================================================================
+    # == No Data Found =====================================================================
 
     tles = @test_logs(
         (:warn, "No GP data found."),
@@ -81,8 +72,7 @@ end
 @testset "Celestrak TLE fetcher [ERRORS]" begin
     f = create_tle_fetcher(CelestrakTleFetcher)
 
-    # Input options
-    # ==========================================================================
+    # == Input Options =====================================================================
 
     @test_throws ArgumentError fetch_tles(f)
     @test_throws ArgumentError fetch_tles(f; satellite_number = -10)

@@ -1,17 +1,14 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==========================================================================================
+# Functions to read TLE from different sources.
 #
-#   Functions to read TLE from different sources.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
 export @tle_str, @tle_nc_str, @tles_str, @tles_nc_str
 export read_tle, read_tles, read_tles_from_file
 
 ############################################################################################
-#                                          Macros
+#                                          Macros                                          #
 ############################################################################################
 
 """
@@ -22,10 +19,12 @@ Parse one TLE in the string `str.
 This function returns the parsed TLE or `nothing`, if an error occured.
 
 !!! note
+
     This function verifies the checksums of the TLE. If the checksum verification is not
     desired, use [`@tle_nc_str`](@ref).
 
 !!! note
+
     `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
     The lines beginning with the character `#` are discarded.
 
@@ -51,10 +50,12 @@ Parse one TLE in the string `str.
 This function returns the parsed TLE or `nothing`, if an error occured.
 
 !!! note
+
     This function **does not** verify the checksums of the TLE. If the checksum verification
     is desired, use [`@tle_str`](@ref).
 
 !!! note
+
     `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
     The lines beginning with the character `#` are discarded.
 
@@ -78,6 +79,7 @@ end
 Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 
 !!! note
+
     This function verifies the checksums of the TLE. If the checksum verification is not
     desired, use [`@tles_nc_str`](@ref).
 
@@ -107,6 +109,7 @@ end
 Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 
 !!! note
+
     This version **does not** verify the checksum of the TLE. If the checksum verification
     is required, use [`@tles_nc_str`](@ref).
 
@@ -131,7 +134,7 @@ macro tles_nc_str(str)
 end
 
 ############################################################################################
-#                                        Functions
+#                                        Functions                                         #
 ############################################################################################
 
 """
@@ -140,6 +143,7 @@ end
 Read the TLE in the string `str`.
 
 !!! note
+
     `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
     The lines beginning with the character `#` are discarded.
 

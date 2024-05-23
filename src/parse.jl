@@ -1,14 +1,11 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==========================================================================================
+# Functions to parse TLEs.
 #
-#   Functions to parse TLEs.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
 ############################################################################################
-#                                    Private functions
+#                                    Private Functions                                     #
 ############################################################################################
 
 # Parse the TLE with first line `l1`, and second line `l2`.
@@ -24,8 +21,7 @@ function _parse_tle(
     verify_checksum::Bool = true
 )
 
-    #                                      First Line
-    # ======================================================================================
+    # == First Line ========================================================================
 
     debug_prefix = l1_position == 0 ? "" : "[Line $l1_position]: "
 
@@ -35,31 +31,26 @@ function _parse_tle(
         return nothing
     end
 
-    # Verify the checksum.
-    # --------------------------------------------------------------------------------------
+    # -- Verify the Checksum. --------------------------------------------------------------
 
     if verify_checksum && !_verify_tle_line_checksum(l1, 1; debug_prefix = debug_prefix)
         return nothing
     end
 
-    # Satellite number
-    # --------------------------------------------------------------------------------------
+    # -- Satellite Number ------------------------------------------------------------------
 
     satellite_number = _tle_try_parse(Int, l1[3:7], 1, debug_prefix, "satellite number")
     isnothing(satellite_number) && return nothing
 
-    # Classification
-    # --------------------------------------------------------------------------------------
+    # -- Classification --------------------------------------------------------------------
 
     classification = Char(l1[8])
 
-    # International designator
-    # --------------------------------------------------------------------------------------
+    # -- International Designator ----------------------------------------------------------
 
     international_designator = strip(l1[10:17])
 
-    # Epoch
-    # --------------------------------------------------------------------------------------
+    # -- Epoch -----------------------------------------------------------------------------
 
     epoch_year = _tle_try_parse(Int, l1[19:20], 1, debug_prefix, "epoch year")
     isnothing(epoch_year) && return nothing
@@ -67,8 +58,7 @@ function _parse_tle(
     epoch_day = _tle_try_parse(Float64, l1[21:32], 1, debug_prefix, "epoch day")
     isnothing(epoch_day) && return nothing
 
-    # Mean motion derivatives
-    # --------------------------------------------------------------------------------------
+    # -- Mean Motion Derivatives -----------------------------------------------------------
 
     dn_o2 = _tle_try_parse(
         Float64,
@@ -101,8 +91,7 @@ function _parse_tle(
 
     ddn_o6 = ddn_o6_dec * 10^ddn_o6_exp
 
-    # BSTAR
-    # --------------------------------------------------------------------------------------
+    # -- BSTAR -----------------------------------------------------------------------------
 
     aux = ((l1[54] == ' ') ? "+." : l1[54] * "." ) * l1[55:59]
 
@@ -114,19 +103,16 @@ function _parse_tle(
 
     bstar = bstar_dec * 10^bstar_exp
 
-    # Ephemeris type
-    # --------------------------------------------------------------------------------------
+    # -- Ephemeris Type --------------------------------------------------------------------
 
     (l1[63] != '0' && l1[63] != ' ') && @warn(debug_prefix * "TLE ephemeris type should be 0.")
 
-    # Element number
-    # --------------------------------------------------------------------------------------
+    # -- Element Number --------------------------------------------------------------------
 
     element_set_number = _tle_try_parse(Int, l1[65:68], 1, debug_prefix, "element set number")
     isnothing(element_set_number) && return nothing
 
-    #                                     Second Line
-    # ======================================================================================
+    # == Second Line =======================================================================
 
     debug_prefix = l2_position == 0 ? "" : "[Line $(l2_position)]: "
 
@@ -136,15 +122,13 @@ function _parse_tle(
         return nothing
     end
 
-    # Verify the checksum.
-    # --------------------------------------------------------------------------------------
+    # -- Verify the Checksum. --------------------------------------------------------------
 
     if verify_checksum && !_verify_tle_line_checksum(l2, 2; debug_prefix = debug_prefix)
         return nothing
     end
 
-    # Compare satellite number with the one in the first line
-    # --------------------------------------------------------------------------------------
+    # -- Compare Satellite Number with the One in the First Line ---------------------------
 
     satellite_number_line_2 = _tle_try_parse(Int, l2[3:7], 2, debug_prefix, "satellite number")
     isnothing(satellite_number_line_2) && return nothing

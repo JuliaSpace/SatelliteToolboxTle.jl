@@ -1,19 +1,13 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==============================================================================
+# Tests related to TLE parsing from strings.
 #
-#   Tests related to TLE parsing from strings.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
-# Function: read_tle
-# ==============================================================================
+# == Function: read_tle ====================================================================
 
-@testset "Function read_tle (individual lines)" begin
-
-    # Default
-    # ==========================================================================
+@testset "Function: read_tle (Individual Lines)" begin
+    # == Default ===========================================================================
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
@@ -38,8 +32,7 @@
     @test tle.mean_motion              == 14.40814394
     @test tle.revolution_number        == 10865
 
-    # No checksum verification
-    # ==========================================================================
+    # == No Checksum Verification ==========================================================
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9999"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108659"
@@ -65,10 +58,8 @@
     @test tle.revolution_number        == 10865
 end
 
-@testset "Function read_tle (individual lines) [ERRORS]" begin
-
-    # Checksum error
-    # ==========================================================================
+@testset "Function read_tle (Individual Lines) [ERRORS]" begin
+    # == Checksum Error ====================================================================
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9991"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
@@ -88,8 +79,7 @@ end
         "Wrong checksum in TLE line 2 (expected = 2, found = 5)."
     ) try read_tle(l1, l2) catch end
 
-    # Invalid lines
-    # ==========================================================================
+    # == Invalid Lines =====================================================================
 
     l1 = "       2 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108655"
@@ -111,10 +101,8 @@ end
 
 end
 
-@testset "Function read_tle (string)" begin
-
-    # Default (two lines)
-    # ==========================================================================
+@testset "Function: read_tle (string)" begin
+    # == Default (Two Lines) ===============================================================
 
     tle_str = """
         # This line should be ignored
@@ -143,8 +131,7 @@ end
     @test tle.mean_motion              == 14.40814394
     @test tle.revolution_number        == 10865
 
-    # Default (three lines)
-    # ==========================================================================
+    # == Default (Three Lines) =============================================================
 
     tle_str = """
         # This line should be ignored
@@ -174,8 +161,7 @@ end
     @test tle.mean_motion              == 14.40814394
     @test tle.revolution_number        == 10865
 
-    # No checksum verification
-    # ==========================================================================
+    # == No Checksum Verification ==========================================================
 
     tle_str = """
         # This line should be ignored
@@ -235,8 +221,7 @@ end
 
 @testset "Function read_tle (string) [ERRORS]" begin
 
-    # Checksum error
-    # ==========================================================================
+    # == Checksum Error ====================================================================
 
     tle_str = """
         # This line should be ignored
@@ -266,8 +251,7 @@ end
         "Wrong checksum in TLE line 2 (expected = 2, found = 3)."
     ) try read_tle(tle_str) catch end
 
-    # Error related with the number of lines
-    # ==========================================================================
+    # == Error Related With the Number of Lines ============================================
 
     tle_str = """
         # This line should be ignored
@@ -288,8 +272,7 @@ end
 
     @test_throws ArgumentError read_tle(tle_str)
 
-    # Invalid lines
-    # ==========================================================================
+    # == Invalid Lines =====================================================================
 
     tle_str = """
         # This line should be ignored
@@ -320,13 +303,10 @@ end
     ) try read_tle(tle_str) catch end
 end
 
-# Function: read_tles
-# ==============================================================================
+# == Function: read_tles ===================================================================
 
-@testset "Function read_tles" begin
-
-    # Default
-    # ==========================================================================
+@testset "Function: read_tles" begin
+    # == Default ===========================================================================
 
     tles_str = """
         # This line should be ignored
@@ -384,8 +364,7 @@ end
     @test cbers_tle.mean_motion              == 14.81596492
     @test cbers_tle.revolution_number        == 17640
 
-    # No checksum verification
-    # ==========================================================================
+    # == No Checksum Verification ==========================================================
 
     tles_str = """
         # This line should be ignored
@@ -443,8 +422,7 @@ end
     @test cbers_tle.mean_motion              == 14.81596492
     @test cbers_tle.revolution_number        == 17640
 
-    # No satellite name
-    # ==========================================================================
+    # == No Satellite Name =================================================================
 
     tles_str = """
         # This line should be ignored
@@ -503,8 +481,7 @@ end
 
 @testset "Function read_tles [ERRORS]" begin
 
-    # Checksum error
-    # ==========================================================================
+    # == Checksum Error ====================================================================
 
     tles_str = """
         # This line should be ignored
@@ -555,8 +532,7 @@ end
     tles = read_tles(tles_str)
     @test length(tles) == 0
 
-    # Field errors
-    # ==========================================================================
+    # == Field Errors ======================================================================
 
     tles_str = """
         # This line should be ignored
@@ -918,8 +894,7 @@ end
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
-    # Incomplete TLEs
-    # ==========================================================================
+    # == Incomplete TLEs ===================================================================
 
     tles_str = """
         # This line should be ignored

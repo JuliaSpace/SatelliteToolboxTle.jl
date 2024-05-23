@@ -1,19 +1,14 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==============================================================================
+# Functions to test the macros.
 #
-#   Functions to test the macros.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
-# Macros: @tle_str and @tle_nc_str
-# ==============================================================================
+# == Macros: @tle_str and @tle_nc_str ======================================================
 
-@testset "Macros @tle_str and @tle_nc_str" begin
+@testset "Macros: @tle_str and @tle_nc_str" begin
 
-    # Default (two lines)
-    # ==========================================================================
+    # == Default (Two Lines) ===============================================================
 
     tle = tle"""
         # This line should be ignored
@@ -40,8 +35,7 @@
     @test tle.mean_motion              == 14.40814394
     @test tle.revolution_number        == 10865
 
-    # Default (three lines)
-    # ==========================================================================
+    # == Default (Three Lines) =============================================================
 
     tle = tle"""
         # This line should be ignored
@@ -69,8 +63,7 @@
     @test tle.mean_motion              == 14.40814394
     @test tle.revolution_number        == 10865
 
-    # No checksum verification
-    # ==========================================================================
+    # == No Checksum Verification ==========================================================
 
     tle = tle_nc"""
         # This line should be ignored
@@ -124,13 +117,11 @@
     @test tle.revolution_number        == 10865
 end
 
-# Macros: @tles_str and @tles_nc_str
-# ==============================================================================
+# == Macros: @tles_str and @tles_nc_str ====================================================
 
-@testset "Macros @tles_str and @tles_nc_str" begin
+@testset "Macros: @tles_str and @tles_nc_str" begin
 
-    # Default
-    # ==========================================================================
+    # == Default ===========================================================================
 
     tles = tles"""
         # This line should be ignored
@@ -186,8 +177,7 @@ end
     @test cbers_tle.mean_motion              == 14.81596492
     @test cbers_tle.revolution_number        == 17640
 
-    # No checksum verification
-    # ==========================================================================
+    # == No Checksum Verification ==========================================================
 
     tles = tles_nc"""
         # This line should be ignored

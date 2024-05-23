@@ -1,18 +1,13 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Description #############################################################################
 #
-# Description
-# ==============================================================================
+# Tests related to TLE parsing from files.
 #
-#   Tests related to TLE parsing from files.
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+############################################################################################
 
-# Function read_tles_from_file
-# ==============================================================================
+# == Function: read_tles_from_file =========================================================
 
-@testset "Function read_tles_from_file" begin
-    # Default
-    # ==========================================================================
+@testset "Function: read_tles_from_file" begin
+    # == Default ===========================================================================
 
     tles = read_tles_from_file("samples.tle")
 
@@ -58,8 +53,7 @@
     @test cbers_tle.mean_motion              == 14.81596492
     @test cbers_tle.revolution_number        == 17640
 
-    # No checksum verification
-    # ==========================================================================
+    # == No Checksum Verification ==========================================================
 
     tles = read_tles_from_file("samples-wrong_checksum.tle"; verify_checksum = false)
 
@@ -106,9 +100,8 @@
     @test cbers_tle.revolution_number        == 17640
 end
 
-@testset "Function read_tles_from_file [ERRORS]" begin
-    # Checksum
-    # ==========================================================================
+@testset "Function: read_tles_from_file [ERRORS]" begin
+    # == Checksum ==========================================================================
 
     tles = read_tles_from_file("samples-wrong_checksum.tle")
 

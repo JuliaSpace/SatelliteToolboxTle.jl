@@ -7,11 +7,11 @@ using SatelliteToolboxTle
 # Do not show logging to keep the output clean.
 global_logger(Logging.NullLogger())
 
-@testset "Parse TLEs from strings" verbose = true begin
+@testset "Parse TLEs From Strings" verbose = true begin
     include("./parse_tles_from_strings.jl")
 end
 
-@testset "Parse TLEs from files" verbose = true begin
+@testset "Parse TLEs From Files" verbose = true begin
     include("./parse_tles_from_files.jl")
 end
 
@@ -27,6 +27,6 @@ end
     include("./printing.jl")
 end
 
-@testset "TLE fetchers" verbose = true begin
+@testset "TLE Fetchers" verbose = true begin
     include("./tle_fetchers.jl")
 end
