@@ -16,7 +16,7 @@ URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
 [compat]
 Crayons = "4.0"
 Dates = "1.10"
-Downloads = "1.10"
+Downloads = "1.4"
 Logging = "1.10"
 PrecompileTools = "1"
 Printf = "1.10"
