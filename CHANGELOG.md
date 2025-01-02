@@ -1,6 +1,12 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
+Version 1.1.0
+-------------
+
+- ![Info][badge-info] We dropped support for Julia 1.6. This version only supports the
+  current Julia version and v1.10 (LTS).
+
 Version 1.0.6
 -------------
 
