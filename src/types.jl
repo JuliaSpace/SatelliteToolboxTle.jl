@@ -77,6 +77,56 @@ Base.@kwdef struct TLE
     mean_anomaly::Float64
     mean_motion::Float64
     revolution_number::Int = 0
+
+    # == Constructor =======================================================================
+
+    function TLE(
+        name::AbstractString,
+        satellite_number::Int,
+        classification::Char,
+        international_designator::AbstractString,
+        epoch_year::Int,
+        epoch_day::Number,
+        dn_o2::Number,
+        ddn_o6::Number,
+        bstar::Number,
+        element_set_number::Int,
+        inclination::Number,
+        raan::Number,
+        eccentricity::Number,
+        argument_of_perigee::Number,
+        mean_anomaly::Number,
+        mean_motion::Number,
+        revolution_number::Int
+    )
+        # Verify inputs.
+        satellite_number >= 0   || throw(ArgumentError("Satellite number must be positive."))
+        0 <= eccentricity < 1   || throw(ArgumentError("Eccentricity must be between 0 and 1."))
+        epoch_year >= 0         || throw(ArgumentError("Year must be positive."))
+        epoch_day >= 0          || throw(ArgumentError("Day must be positive."))
+        element_set_number >= 0 || throw(ArgumentError("Element set number must be positive."))
+        revolution_number >= 0  || throw(ArgumentError("Revolution number must be positive."))
+
+        new(
+            name,
+            satellite_number,
+            classification,
+            international_designator,
+            epoch_year,
+            epoch_day,
+            dn_o2,
+            ddn_o6,
+            bstar,
+            element_set_number,
+            inclination,
+            raan,
+            eccentricity,
+            argument_of_perigee,
+            mean_anomaly,
+            mean_motion,
+            revolution_number,
+        )
+    end
 end
 
 """

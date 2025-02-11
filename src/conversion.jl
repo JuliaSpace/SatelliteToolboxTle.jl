@@ -25,11 +25,11 @@ function convert(::Type{String}, tle::TLE)
     bstar                    = tle.bstar
 
     element_set_number       = tle.element_set_number
-    inclination              = tle.inclination
-    raan                     = tle.raan
+    inclination              = mod(tle.inclination, 360)
+    raan                     = mod(tle.raan, 360)
     eccentricity             = tle.eccentricity
-    argument_of_perigee      = tle.argument_of_perigee
-    mean_anomaly             = tle.mean_anomaly
+    argument_of_perigee      = mod(tle.argument_of_perigee, 360)
+    mean_anomaly             = mod(tle.mean_anomaly, 360)
     mean_motion              = tle.mean_motion
     revolution_number        = tle.revolution_number
 

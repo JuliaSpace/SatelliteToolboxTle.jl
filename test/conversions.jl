@@ -44,6 +44,40 @@
     end
 end
 
+@testset "Conversion TLE => String, Corner Cases" begin
+    tle = TLE(
+        ;
+        name                     = "Amazonia-1",
+        satellite_number         = 47699,
+        classification           = 'U',
+        international_designator = "21015A",
+        epoch_year               = 23,
+        epoch_day                = 83.68657856,
+        dn_o2                    = -0.00000044,
+        ddn_o6                   = 0.00000001,
+        bstar                    = 0.000043,
+        element_set_number       = 999,
+        inclination              = (98.4304 - 360),
+        raan                     = (162.1097 - 360),
+        eccentricity             = 0.0001247,
+        argument_of_perigee      = (136.2017 - 360),
+        mean_anomaly             = (223.9283 - 360),
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    str = convert(String, tle)
+
+    println(str)
+
+    expected_str = """
+        Amazonia-1              
+        1 47699U 21015A   23083.68657856 -.00000044  10000-7  43000-4 0  9999
+        2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"""
+
+    @test str == expected_str
+end
+
 # == Function: tle_epoch ===================================================================
 
 @testset "Function: tle_epoch" begin

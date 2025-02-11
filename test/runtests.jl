@@ -27,6 +27,10 @@ end
     include("./printing.jl")
 end
 
+@testset "TLE Creation"  verbose = true begin
+    include("./errors.jl")
+end
+
 @testset "TLE Fetchers" verbose = true begin
     include("./tle_fetchers.jl")
 end
