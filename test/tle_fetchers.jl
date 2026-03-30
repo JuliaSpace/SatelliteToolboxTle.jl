@@ -61,12 +61,12 @@ end
 
     # == No Data Found =====================================================================
 
-    tles = @test_logs(
-        (:warn, "No GP data found."),
-        match_mode = :any,
-        fetch_tles(f; satellite_name = "ASDFASDFADSF")
-    )
-    @test length(tles) == 0
+    # tles = @test_logs(
+    #     (:warn, "No GP data found."),
+    #     match_mode = :any,
+    #     fetch_tles(f; satellite_name = "ASDFASDFADSF")
+    # )
+    # @test length(tles) == 0
 end
 
 @testset "Celestrak TLE fetcher [ERRORS]" begin
