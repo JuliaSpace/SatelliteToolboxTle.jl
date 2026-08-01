@@ -99,6 +99,46 @@ end
         "The 2nd line is not valid."
     ) try read_tle(l1, l2) catch end
 
+    # == Short Lines =======================================================================
+
+    l1 = "1"
+    l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
+
+    @test_throws ArgumentError read_tle(l1, l2)
+    @test_logs (
+        :error,
+        "The 1st line is not valid."
+    ) try read_tle(l1, l2) catch end
+
+    l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
+    l2 = "2"
+
+    @test_throws ArgumentError read_tle(l1, l2)
+    @test_logs (
+        :error,
+        "The 2nd line is not valid."
+    ) try read_tle(l1, l2) catch end
+
+    # == Lines Starting With Multi-Byte Characters =========================================
+
+    l1 = "λ 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
+    l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
+
+    @test_throws ArgumentError read_tle(l1, l2)
+    @test_logs (
+        :error,
+        "The 1st line is not valid."
+    ) try read_tle(l1, l2) catch end
+
+    l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
+    l2 = "λ 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
+
+    @test_throws ArgumentError read_tle(l1, l2)
+    @test_logs (
+        :error,
+        "The 2nd line is not valid."
+    ) try read_tle(l1, l2) catch end
+
 end
 
 @testset "Function: read_tle (string)" begin
@@ -477,6 +517,23 @@ end
     @test cbers_tle.mean_anomaly             == 266.0964
     @test cbers_tle.mean_motion              == 14.81596492
     @test cbers_tle.revolution_number        == 17640
+end
+
+@testset "Function: read_tles (Short and Multi-Byte Satellite Names)" begin
+    tles_str = """
+        A
+          1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
+            2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
+        ÇBERS 4A
+            1 44883U 19093E   23084.50188177  .00004132  00000+0  53225-3 0  9992
+            2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
+        """
+
+    tles = read_tles(tles_str)
+
+    @test length(tles) == 2
+    @test first(tles).name == "A"
+    @test last(tles).name  == "ÇBERS 4A"
 end
 
 @testset "Function read_tles [ERRORS]" begin

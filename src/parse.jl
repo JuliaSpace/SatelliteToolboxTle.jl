@@ -26,7 +26,7 @@ function _parse_tle(
     debug_prefix = l1_position == 0 ? "" : "[Line $l1_position]: "
 
     # The first line must start with "1 " and have 69 characters.
-    if (l1[1:2] != "1 ") || (length(l1) != 69)
+    if !startswith(l1, "1 ") || (length(l1) != 69)
         @error(debug_prefix * "The 1st line is not valid.")
         return nothing
     end
@@ -117,7 +117,7 @@ function _parse_tle(
     debug_prefix = l2_position == 0 ? "" : "[Line $(l2_position)]: "
 
     # The second line must start with "2 " and have 69 characters.
-    if (l2[1:2] != "2 ") || (length(l2) != 69)
+    if !startswith(l2, "2 ") || (length(l2) != 69)
         @error(debug_prefix * "The 2nd line is not valid.")
         return nothing
     end
@@ -256,7 +256,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             # Check if the line seems to be the first line of the TLE. In this case, maybe
             # the user has not provided a name. Then, change the state to `:l1`, and skip
             # the line reading in the next loop.
-            if (line[1:2] == "1 ") && (length(line) == 69)
+            if startswith(line, "1 ") && (length(line) == 69)
                 name = "UNDEFINED"
                 state = :l1
                 skip_line_read = true
@@ -265,7 +265,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             # If the beginning of the line is `2 `, the line is considered the second TLE
             # line. However, if we are in this state, it means that the first line had a
             # parsing error. Hence, we need to skip this line.
-            elseif (line[1:2] == "2 ")
+            elseif startswith(line, "2 ")
                 continue
             end
 
@@ -286,7 +286,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             # file is not valid.
 
             # The first line must start with "1 " and have 69 characters.
-            if (line[1:2] != "1 ") || (length(line) != 69)
+            if !startswith(line, "1 ") || (length(line) != 69)
                 @error("[Line $line_num]: This is not a valid 1st line.")
 
                 # Reset the state machine and continue.
@@ -305,7 +305,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             # file is not valid.
 
             # The second line must start with "2 " and have 69 characters.
-            if (line[1:2] != "2 ") || (length(line) != 69)
+            if !startswith(line, "2 ") || (length(line) != 69)
                 @error("[Line $line_num]: This is not a valid 2nd line.")
 
                 # Reset the state machine and continue.
