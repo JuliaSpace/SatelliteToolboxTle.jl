@@ -100,12 +100,12 @@ Base.@kwdef struct TLE
         revolution_number::Int
     )
         # Verify inputs.
-        satellite_number >= 0   || throw(ArgumentError("Satellite number must be positive."))
+        satellite_number >= 0   || throw(ArgumentError("Satellite number must be non-negative."))
         0 <= eccentricity < 1   || throw(ArgumentError("Eccentricity must be between 0 and 1."))
-        epoch_year >= 0         || throw(ArgumentError("Year must be positive."))
-        epoch_day >= 0          || throw(ArgumentError("Day must be positive."))
-        element_set_number >= 0 || throw(ArgumentError("Element set number must be positive."))
-        revolution_number >= 0  || throw(ArgumentError("Revolution number must be positive."))
+        epoch_year >= 0         || throw(ArgumentError("Year must be non-negative."))
+        epoch_day >= 0          || throw(ArgumentError("Day must be non-negative."))
+        element_set_number >= 0 || throw(ArgumentError("Element set number must be non-negative."))
+        revolution_number >= 0  || throw(ArgumentError("Revolution number must be non-negative."))
 
         new(
             name,
