@@ -78,6 +78,39 @@ end
     @test str == expected_str
 end
 
+@testset "Conversion TLE => String, Epoch Year With One Digit" begin
+    tle = TLE(
+        ;
+        name                     = "Amazonia-1",
+        satellite_number         = 47699,
+        classification           = 'U',
+        international_designator = "21015A",
+        epoch_year               = 6,
+        epoch_day                = 83.68657856,
+        dn_o2                    = -0.00000044,
+        ddn_o6                   = 0.00000001,
+        bstar                    = 0.000043,
+        element_set_number       = 999,
+        inclination              = 98.4304,
+        raan                     = 162.1097,
+        eccentricity             = 0.0001247,
+        argument_of_perigee      = 136.2017,
+        mean_anomaly             = 223.9283,
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    str = convert(String, tle)
+
+    # The epoch year must be zero-padded to two digits.
+    l1 = split(str, '\n')[2]
+    @test l1[19:20] == "06"
+    @test length(l1) == 69
+
+    # The generated TLE must be parsable, recovering the same epoch year.
+    @test read_tle(str).epoch_year == 6
+end
+
 # == Function: tle_epoch ===================================================================
 
 @testset "Function: tle_epoch" begin

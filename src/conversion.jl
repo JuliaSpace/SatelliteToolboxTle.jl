@@ -61,7 +61,7 @@ function convert(::Type{String}, tle::TLE)
 
     # -- Epoch (Year) ----------------------------------------------------------------------
 
-    print(buf, @sprintf("%-2d", epoch_year)[1:2])
+    print(buf, @sprintf("%02d", mod(epoch_year, 100)))
 
     # -- Epoch (Day + Fraction of the Day) -------------------------------------------------
 
