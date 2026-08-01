@@ -7,6 +7,10 @@ using SatelliteToolboxTle
 # Do not show logging to keep the output clean.
 global_logger(Logging.NullLogger())
 
+@testset "Checksum" verbose = true begin
+    include("./checksum.jl")
+end
+
 @testset "Parse TLEs From Strings" verbose = true begin
     include("./parse_tles_from_strings.jl")
 end

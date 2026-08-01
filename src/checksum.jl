@@ -19,8 +19,9 @@ function tle_line_checksum(str::AbstractString)
     checksum = 0
 
     for c in str
-        # Check if `c` is a number.
-        if isnumeric(c)
+        # Check if `c` is an ASCII digit. We must not use `isnumeric` here because it also
+        # accepts Unicode numerals that cannot be parsed to an `Int`.
+        if isdigit(c)
             checksum += parse(Int, c)
 
         # Check if `c` is a minus sign, which has value 1.
