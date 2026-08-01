@@ -249,17 +249,19 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
     # Output array with the TLEs found in the file.
     vtle = TLE[]
 
-    # Auxiliary variables.
+    # Auxiliary variables. Notice that we initialize the string variables with an empty
+    # `SubString` to keep them type-stable, since `strip(readline(io))` returns a
+    # `SubString{String}`.
     line_num       = 0
     l1_position    = 0
     l2_position    = 0
-    line           = nothing
+    line           = SubString("")
     skip_line_read = false
 
     # Variables to store the each TLE inforamtion.
-    name   = nothing
-    line_1 = nothing
-    line_2 = nothing
+    name   = SubString("")
+    line_1 = SubString("")
+    line_2 = SubString("")
 
     while !eof(io)
         # Read the current line, strip white spaces, and skip if it is blank or is a comment.
@@ -277,7 +279,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             # the user has not provided a name. Then, change the state to `:l1`, and skip
             # the line reading in the next loop.
             if startswith(line, "1 ") && (length(line) == 69)
-                name = "UNDEFINED"
+                name = SubString("UNDEFINED")
                 state = :l1
                 skip_line_read = true
                 continue
