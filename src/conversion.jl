@@ -157,7 +157,7 @@ function convert(::Type{String}, tle::TLE)
 
     print(buf, @sprintf("%8.4f", raan), " ")
 
-    # -- Eccentricity [°] ------------------------------------------------------------------
+    # -- Eccentricity ----------------------------------------------------------------------
 
     # The eccentricity is always lower than 1. However, when rounded to the printed
     # precision, it can reach 1, breaking the implied decimal point notation. In this case,
@@ -215,7 +215,7 @@ function tle_epoch(tle::TLE)
 end
 
 """
-    tle_epoch(DateTime, tle::TLE) -> Float64
+    tle_epoch(DateTime, tle::TLE) -> DateTime
 
 Return the `DateTime` related to the `tle` epoch.
 """

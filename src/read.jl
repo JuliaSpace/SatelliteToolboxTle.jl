@@ -111,7 +111,7 @@ Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
 !!! note
 
     This version **does not** verify the checksum of the TLE. If the checksum verification
-    is required, use [`@tles_nc_str`](@ref).
+    is required, use [`@tles_str`](@ref).
 
 # Example
 
@@ -138,7 +138,7 @@ end
 ############################################################################################
 
 """
-    read_tle(str::AbstractString; verify_checksum::Bool = false) -> TLE
+    read_tle(str::AbstractString; verify_checksum::Bool = true) -> TLE
 
 Read the TLE in the string `str`.
 
