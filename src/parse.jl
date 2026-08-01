@@ -384,12 +384,12 @@ end
 # current TLE line number (1 or 2), and `field` must be the current TLE field that is being
 # parsed.
 function _tle_try_parse(
-    T::DataType,
+    ::Type{T},
     input::AbstractString,
     line_number::Int,
     debug_prefix::String,
     field::String
-)
+) where T
     output = tryparse(T, input)
 
     if isnothing(output)
