@@ -65,7 +65,11 @@ function convert(::Type{String}, tle::TLE)
 
     # -- Epoch (Day + Fraction of the Day) -------------------------------------------------
 
-    i_epoch_day = floor(Int,epoch_day)
+    # We must round the epoch day to the printed precision before splitting it. Otherwise,
+    # a fraction of the day close to 1 would be rounded to "1.00000000" by `@sprintf`,
+    # silently dropping the carry to the integer part.
+    epoch_day   = round(epoch_day, digits = 8)
+    i_epoch_day = floor(Int, epoch_day)
     f_epoch_day = epoch_day - i_epoch_day
 
     print(
@@ -78,10 +82,19 @@ function convert(::Type{String}, tle::TLE)
 
     # -- First Time Derivative of the Mean Motion ------------------------------------------
 
+    # The field can only store values with magnitude lower than 1. If the magnitude rounded
+    # to the printed precision reaches 1, we must saturate the field.
+    abs_dn_o2 = round(abs(dn_o2), digits = 8)
+
+    if abs_dn_o2 >= 1
+        @warn("The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated.")
+        abs_dn_o2 = 0.99999999
+    end
+
     print(
         buf,
         dn_o2 < 0 ? "-." : " .",
-        @sprintf("%-10.8f", abs(dn_o2))[3:10],
+        @sprintf("%-10.8f", abs_dn_o2)[3:10],
         " "
     )
 
@@ -143,6 +156,11 @@ function convert(::Type{String}, tle::TLE)
     print(buf, @sprintf("%8.4f", raan), " ")
 
     # -- Eccentricity [°] ------------------------------------------------------------------
+
+    # The eccentricity is always lower than 1. However, when rounded to the printed
+    # precision, it can reach 1, breaking the implied decimal point notation. In this case,
+    # we must saturate the field.
+    eccentricity = min(round(eccentricity, digits = 7), 0.9999999)
 
     print(buf, @sprintf("%-9.7f", eccentricity)[3:9], " ")
 
@@ -221,14 +239,22 @@ end
 #                                    Private Functions                                     #
 ############################################################################################
 
-# Get the mantissa and exponent of the number `n`.
-function _get_mant_exp(n::Number)
+# Get the mantissa and exponent of the number `n` so that `n = mant * 10^exp` with
+# `|mant| ∈ [0.1, 1)` when `mant` is rounded to `digits` decimal digits.
+function _get_mant_exp(n::Number; digits::Int = 5)
     if abs(n) < 1e-20
-        return 0., 0
+        return 0.0, 0
     end
 
-    exp  = floor(Int, log10(n)) + 1
+    exp  = floor(Int, log10(abs(n))) + 1
     mant = n / 10.0^exp
+
+    # Due to floating-point rounding, the mantissa can reach 1 when rounded to the printed
+    # precision. In this case, we must adjust the mantissa and the exponent.
+    if round(abs(mant); digits = digits) >= 1
+        mant /= 10
+        exp  += 1
+    end
 
     return mant, exp
 end

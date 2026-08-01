@@ -111,6 +111,61 @@ end
     @test read_tle(str).epoch_year == 6
 end
 
+@testset "Conversion TLE => String, Rounding Overflows" begin
+    # All the values below round to 1 (or to the next integer) at the printed precision.
+    # Hence, without the proper treatment, the fields would silently lose their integer
+    # part or carry.
+    tle = TLE(
+        ;
+        satellite_number         = 47699,
+        international_designator = "21015A",
+        epoch_year               = 23,
+        epoch_day                = 83.999999996,
+        ddn_o6                   = 0.099999996,
+        bstar                    = 0.099999996,
+        element_set_number       = 999,
+        inclination              = 98.4304,
+        raan                     = 162.1097,
+        eccentricity             = 0.99999996,
+        argument_of_perigee      = 136.2017,
+        mean_anomaly             = 223.9283,
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    parsed = convert(String, tle) |> read_tle
+
+    @test parsed.epoch_day    == 84.0
+    @test parsed.ddn_o6       == 0.1
+    @test parsed.bstar        == 0.1
+    @test parsed.eccentricity == 0.9999999
+
+    # The dn_o2 field must saturate when its magnitude reaches 1 after the rounding.
+    tle = TLE(
+        ;
+        satellite_number         = 47699,
+        international_designator = "21015A",
+        epoch_year               = 23,
+        epoch_day                = 83.68657856,
+        dn_o2                    = 0.999999996,
+        element_set_number       = 999,
+        inclination              = 98.4304,
+        raan                     = 162.1097,
+        eccentricity             = 0.0001247,
+        argument_of_perigee      = 136.2017,
+        mean_anomaly             = 223.9283,
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    str = @test_logs (
+        :warn,
+        "The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated."
+    ) convert(String, tle)
+
+    @test read_tle(str).dn_o2 == 0.99999999
+end
+
 # == Function: tle_epoch ===================================================================
 
 @testset "Function: tle_epoch" begin
