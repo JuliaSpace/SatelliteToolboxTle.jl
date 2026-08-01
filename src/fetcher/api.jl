@@ -11,8 +11,8 @@ export create_tle_fetcher, fetch_tles
 
 Create a TLE fetcher of type `T`.
 """
-function create_tle_fetcher(::Type{T}, args...; kwargs...) where T <: AbstractTleFetcher
-    error("The TLE fetcher $T is not registered.")
+function create_tle_fetcher(::Type{T}, args...; kwargs...) where {T <: AbstractTleFetcher}
+    return error("The TLE fetcher $T is not registered.")
 end
 
 """
@@ -23,6 +23,6 @@ Fetch TLEs using `fetcher`.
 The keywords `kwargs...` are used to customize the search. It depends on the fetcher type
 `T`.
 """
-function fetch_tles(::T; kwargs...) where T <: AbstractTleFetcher
-    error("The TLE fetcher $T is not registered.")
+function fetch_tles(::T; kwargs...) where {T <: AbstractTleFetcher}
+    return error("The TLE fetcher $T is not registered.")
 end

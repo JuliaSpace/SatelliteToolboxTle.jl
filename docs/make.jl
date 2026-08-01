@@ -1,9 +1,9 @@
 using Documenter
 using SatelliteToolboxTle
 
-makedocs(
+makedocs(;
     modules = [SatelliteToolboxTle],
-    format = Documenter.HTML(
+    format = Documenter.HTML(;
         prettyurls = !("local" in ARGS),
         canonical = "https://juliaspace.github.io/SatelliteToolboxTle.jl/stable/",
     ),
@@ -16,13 +16,10 @@ makedocs(
             "Creating TLEs"       => "man/creating_tles.md",
             "Parsing TLEs"        => "man/parsing_tles.md",
             "Fetching TLEs"       => "man/fetching_tles.md",
-            "Auxiliary functions" => "man/auxiliary_functions.md"
+            "Auxiliary functions" => "man/auxiliary_functions.md",
         ],
         "Library" => "lib/library.md",
     ],
 )
 
-deploydocs(
-    repo = "github.com/JuliaSpace/SatelliteToolboxTle.jl.git",
-    target = "build",
-)
+deploydocs(; repo = "github.com/JuliaSpace/SatelliteToolboxTle.jl.git", target = "build")

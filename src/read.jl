@@ -152,10 +152,7 @@ Read the TLE in the string `str`.
 - `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
     Otherwise, the checksum will not be checked. (**Default** = `true`)
 """
-function read_tle(
-    str::AbstractString;
-    verify_checksum::Bool = true
-)
+function read_tle(str::AbstractString; verify_checksum::Bool = true)
     # Split the string into lines, discarding empty lines and comments.
     lines = filter(l -> !isempty(l) && (l[1] != '#'), strip.(split(str, '\n')))
     num_lines = length(lines)
@@ -191,7 +188,7 @@ function read_tle(
     l1::AbstractString,
     l2::AbstractString;
     name::AbstractString = "UNDEFINED",
-    verify_checksum::Bool = true
+    verify_checksum::Bool = true,
 )
     tle = _parse_tle(strip(l1), strip(l2); name, verify_checksum)
     isnothing(tle) && throw(ArgumentError("The TLE is not valid."))
@@ -227,7 +224,7 @@ Read the TLEs in the file `filename` and return a `Vector{TLE}` with the parsed 
 function read_tles_from_file(filename::String; verify_checksum::Bool = true)
     # Open the file in read mode.
     tles = open(filename, "r") do f
-        _parse_tles(f; verify_checksum)
+        return _parse_tles(f; verify_checksum)
     end
 
     return tles

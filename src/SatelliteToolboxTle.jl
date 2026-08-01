@@ -13,7 +13,7 @@ import Base: convert, show
 ############################################################################################
 
 # Escape sequences related to the crayons.
-const _D = Crayon(reset = true)
+const _D = Crayon(; reset = true)
 const _B = crayon"bold"
 const _G = crayon"bold green"
 const _Y = crayon"bold yellow"

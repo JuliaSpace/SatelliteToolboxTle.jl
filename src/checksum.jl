@@ -24,7 +24,7 @@ function tle_line_checksum(str::AbstractString)
         if isdigit(c)
             checksum += c - '0'
 
-        # Check if `c` is a minus sign, which has value 1.
+            # Check if `c` is a minus sign, which has value 1.
         elseif c == '-'
             checksum += 1
         end

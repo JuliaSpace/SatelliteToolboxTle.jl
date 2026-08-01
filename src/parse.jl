@@ -17,7 +17,7 @@ function _parse_tle(
     name::AbstractString = "UNDEFINED",
     l1_position::Int = 0,
     l2_position::Int = 0,
-    verify_checksum::Bool = true
+    verify_checksum::Bool = true,
 )
 
     # == First Line ========================================================================
@@ -39,7 +39,9 @@ function _parse_tle(
 
     # -- Satellite Number ------------------------------------------------------------------
 
-    satellite_number = _tle_try_parse(Int, @view(l1[3:7]), 1, debug_prefix, "satellite number")
+    satellite_number = _tle_try_parse(
+        Int, @view(l1[3:7]), 1, debug_prefix, "satellite number"
+    )
     isnothing(satellite_number) && return nothing
 
     # -- Classification --------------------------------------------------------------------
@@ -65,18 +67,14 @@ function _parse_tle(
         @view(l1[34:43]),
         1,
         debug_prefix,
-        "first derivative of mean motion (dn_o2)"
+        "first derivative of mean motion (dn_o2)",
     )
     isnothing(dn_o2) && return nothing
 
     aux = ((l1[45] == ' ') ? "+." : l1[45] * ".") * @view(l1[46:50])
 
     ddn_o6_dec = _tle_try_parse(
-        Float64,
-        aux,
-        1,
-        debug_prefix,
-        "second derivative of mean motion (ddn_o6)"
+        Float64, aux, 1, debug_prefix, "second derivative of mean motion (ddn_o6)"
     )
     isnothing(ddn_o6_dec) && return nothing
 
@@ -85,7 +83,7 @@ function _parse_tle(
         @view(l1[51:52]),
         1,
         debug_prefix,
-        "second derivative of mean motion (ddn_o6)"
+        "second derivative of mean motion (ddn_o6)",
     )
     isnothing(ddn_o6_exp) && return nothing
 
@@ -105,16 +103,13 @@ function _parse_tle(
 
     # -- Ephemeris Type --------------------------------------------------------------------
 
-    (l1[63] != '0' && l1[63] != ' ') && @warn(debug_prefix * "TLE ephemeris type should be 0.")
+    (l1[63] != '0' && l1[63] != ' ') &&
+        @warn(debug_prefix * "TLE ephemeris type should be 0.")
 
     # -- Element Number --------------------------------------------------------------------
 
     element_set_number = _tle_try_parse(
-        Int,
-        @view(l1[65:68]),
-        1,
-        debug_prefix,
-        "element set number"
+        Int, @view(l1[65:68]), 1, debug_prefix, "element set number"
     )
     isnothing(element_set_number) && return nothing
 
@@ -138,11 +133,7 @@ function _parse_tle(
     # -- Compare Satellite Number with the One in the First Line ---------------------------
 
     satellite_number_line_2 = _tle_try_parse(
-        Int,
-        @view(l2[3:7]),
-        2,
-        debug_prefix,
-        "satellite number"
+        Int, @view(l2[3:7]), 2, debug_prefix, "satellite number"
     )
     isnothing(satellite_number_line_2) && return nothing
 
@@ -163,35 +154,29 @@ function _parse_tle(
         @view(l2[18:25]),
         2,
         debug_prefix,
-        "right ascension of the ascending node (RAAN)"
+        "right ascension of the ascending node (RAAN)",
     )
     isnothing(raan) && return nothing
 
     # -- Eccentricity ----------------------------------------------------------------------
 
     eccentricity = _tle_try_parse(
-        Float64,
-        "." * @view(l2[27:33]),
-        2,
-        debug_prefix,
-        "eccentricity"
+        Float64, "." * @view(l2[27:33]), 2, debug_prefix, "eccentricity"
     )
     isnothing(eccentricity) && return nothing
 
     # -- Argument of Perigee ---------------------------------------------------------------
 
     argument_of_perigee = _tle_try_parse(
-        Float64,
-        @view(l2[35:42]),
-        2,
-        debug_prefix,
-        "argument of perigee"
+        Float64, @view(l2[35:42]), 2, debug_prefix, "argument of perigee"
     )
     isnothing(argument_of_perigee) && return nothing
 
     # -- Mean Anomaly ----------------------------------------------------------------------
 
-    mean_anomaly = _tle_try_parse(Float64, @view(l2[44:51]), 2, debug_prefix, "mean anomaly")
+    mean_anomaly = _tle_try_parse(
+        Float64, @view(l2[44:51]), 2, debug_prefix, "mean anomaly"
+    )
     isnothing(mean_anomaly) && return nothing
 
     # -- Mean Motion -----------------------------------------------------------------------
@@ -201,7 +186,9 @@ function _parse_tle(
 
     # -- Revolution Number at Epoch --------------------------------------------------------
 
-    revolution_number = _tle_try_parse(Int, @view(l2[64:68]), 2, debug_prefix, "revolution number")
+    revolution_number = _tle_try_parse(
+        Int, @view(l2[64:68]), 2, debug_prefix, "revolution number"
+    )
     isnothing(revolution_number) && return nothing
 
     # == Create the TLE ====================================================================
@@ -224,7 +211,7 @@ function _parse_tle(
         argument_of_perigee,
         mean_anomaly,
         mean_motion,
-        revolution_number
+        revolution_number,
     )
 end
 
@@ -283,9 +270,9 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
                 skip_line_read = true
                 continue
 
-            # If the beginning of the line is `2 `, the line is considered the second TLE
-            # line. However, if we are in this state, it means that the first line had a
-            # parsing error. Hence, we need to skip this line.
+                # If the beginning of the line is `2 `, the line is considered the second TLE
+                # line. However, if we are in this state, it means that the first line had a
+                # parsing error. Hence, we need to skip this line.
             elseif startswith(line, "2 ")
                 continue
             end
@@ -300,7 +287,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             name  = line
             state = :l1
 
-        # == TLE Line 1 ====================================================================
+            # == TLE Line 1 ====================================================================
 
         elseif state === :l1
             # The next non-blank line must be the first line of the TLE.  Otherwise, the
@@ -319,7 +306,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
             l1_position = line_num
             state       = :l2
 
-        # == TLE Line 2 ====================================================================
+            # == TLE Line 2 ====================================================================
 
         elseif state === :l2
             # The next non-blank line must be the second line of the TLE.  Otherwise, the
@@ -339,12 +326,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
 
             # Now, we can parse the TLE.
             tle = _parse_tle(
-                line_1,
-                line_2;
-                l1_position,
-                l2_position,
-                name,
-                verify_checksum
+                line_1, line_2; l1_position, l2_position, name, verify_checksum
             )
 
             !isnothing(tle) && push!(vtle, tle)
@@ -356,7 +338,8 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
 
     # If the final state is not :name, then we have an incomplete TLE. Thus, log an error
     # because the file is not valid.
-    state !== :name && @error("[Line $line_num]: " * "The last TLE in the file is incomplete.")
+    state !== :name &&
+        @error("[Line $line_num]: " * "The last TLE in the file is incomplete.")
 
     return vtle
 end
@@ -367,27 +350,21 @@ end
 #
 # `debug_prefix` is a string that will be added to the debugging messages.
 function _verify_tle_line_checksum(
-    line::AbstractString,
-    line_number::Int;
-    debug_prefix::String = ""
+    line::AbstractString, line_number::Int; debug_prefix::String = ""
 )
     # Try parsing the line checksum.
     checksum = _tle_try_parse(
-        Int,
-        @view(line[69:69]),
-        1,
-        debug_prefix,
-        "line $line_number checksum"
+        Int, @view(line[69:69]), 1, debug_prefix, "line $line_number checksum"
     )
     isnothing(checksum) && return false
 
     # Compute the expected checksum.
-    expected_checksum = tle_line_checksum(@view line[1:end-1])
+    expected_checksum = tle_line_checksum(@view line[1:(end - 1)])
 
     if checksum != expected_checksum
         @error(
             debug_prefix *
-            "Wrong checksum in TLE line $line_number (expected = $expected_checksum, found = $checksum)."
+                "Wrong checksum in TLE line $line_number (expected = $expected_checksum, found = $checksum)."
         )
 
         return false
@@ -405,16 +382,15 @@ end
 # current TLE line number (1 or 2), and `field` must be the current TLE field that is being
 # parsed.
 function _tle_try_parse(
-    ::Type{T},
-    input::AbstractString,
-    line_number::Int,
-    debug_prefix::String,
-    field::String
-) where T
+    ::Type{T}, input::AbstractString, line_number::Int, debug_prefix::String, field::String
+) where {T}
     output = tryparse(T, input)
 
     if isnothing(output)
-        @error(debug_prefix * "The $(field) in the TLE line $(line_number) could not be parsed.")
+        @error(
+            debug_prefix *
+                "The $(field) in the TLE line $(line_number) could not be parsed."
+        )
         return nothing
     end
 

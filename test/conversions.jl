@@ -10,7 +10,7 @@
     tles = read_tles_from_file("./tles_20200122.tle")
     f    = open("./tles_20200122.tle", "r")
 
-    for i = 1:length(tles)
+    for i in 1:length(tles)
         stri_name = readline(f)
         stri_l1   = readline(f)
         stri_l2   = readline(f)
@@ -24,12 +24,12 @@
         # Hence, if the current TLE uses `-`, we need to change it and update the checksum.
 
         if (tles[i].ddn_o6 == 0) && (stri_l1[51] == '-')
-            stri_l1  = stri_l1[1:50] * "+" * stri_l1[52:end-1]
+            stri_l1 = stri_l1[1:50] * "+" * stri_l1[52:(end - 1)]
             stri_l1 *= string(tle_line_checksum(stri_l1[1:end]))
         end
 
         if (tles[i].bstar == 0) && (stri_l1[60] == '-')
-            stri_l1 = stri_l1[1:59] * "+" * stri_l1[61:end-1]
+            stri_l1 = stri_l1[1:59] * "+" * stri_l1[61:(end - 1)]
             stri_l1 *= string(tle_line_checksum(stri_l1[1:end]))
         end
 
@@ -45,8 +45,7 @@
 end
 
 @testset "Conversion TLE => String, Corner Cases" begin
-    tle = TLE(
-        ;
+    tle = TLE(;
         name                     = "Amazonia-1",
         satellite_number         = 47699,
         classification           = 'U',
@@ -79,8 +78,7 @@ end
 end
 
 @testset "Conversion TLE => String, Epoch Year With One Digit" begin
-    tle = TLE(
-        ;
+    tle = TLE(;
         name                     = "Amazonia-1",
         satellite_number         = 47699,
         classification           = 'U',
@@ -115,8 +113,7 @@ end
     # All the values below round to 1 (or to the next integer) at the printed precision.
     # Hence, without the proper treatment, the fields would silently lose their integer
     # part or carry.
-    tle = TLE(
-        ;
+    tle = TLE(;
         satellite_number         = 47699,
         international_designator = "21015A",
         epoch_year               = 23,
@@ -135,14 +132,13 @@ end
 
     parsed = convert(String, tle) |> read_tle
 
-    @test parsed.epoch_day    == 84.0
-    @test parsed.ddn_o6       == 0.1
-    @test parsed.bstar        == 0.1
+    @test parsed.epoch_day == 84.0
+    @test parsed.ddn_o6 == 0.1
+    @test parsed.bstar == 0.1
     @test parsed.eccentricity == 0.9999999
 
     # The dn_o2 field must saturate when its magnitude reaches 1 after the rounding.
-    tle = TLE(
-        ;
+    tle = TLE(;
         satellite_number         = 47699,
         international_designator = "21015A",
         epoch_year               = 23,
@@ -160,15 +156,14 @@ end
 
     str = @test_logs (
         :warn,
-        "The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated."
+        "The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated.",
     ) convert(String, tle)
 
     @test read_tle(str).dn_o2 == 0.99999999
 end
 
 @testset "Conversion TLE => String, Exponents Outside the TLE Range" begin
-    tle = TLE(
-        ;
+    tle = TLE(;
         satellite_number         = 47699,
         international_designator = "21015A",
         epoch_year               = 23,
@@ -191,18 +186,17 @@ end
     str = @test_logs (
         :warn,
         "The ddn_o6 magnitude is too large to be represented in a TLE. The field will " *
-        "be saturated."
+        "be saturated.",
     ) convert(String, tle)
 
     parsed = read_tle(str)
 
     @test parsed.ddn_o6 == 9.9999e8
-    @test parsed.bstar  ≈  1e-13
+    @test parsed.bstar ≈ 1e-13
 
     # If the value is too small to be represented even with a denormalized mantissa, the
     # field must be set to 0.
-    tle = TLE(
-        ;
+    tle = TLE(;
         satellite_number         = 47699,
         international_designator = "21015A",
         epoch_year               = 23,
@@ -221,7 +215,7 @@ end
     str = @test_logs (
         :warn,
         "The BSTAR magnitude is too small to be represented in a TLE. The field will " *
-        "be set to 0."
+        "be set to 0.",
     ) convert(String, tle)
 
     @test read_tle(str).bstar == 0
@@ -238,6 +232,6 @@ end
 
     expected_epoch_dt = DateTime(2023, 3, 24, 16, 28, 40, 388)
 
-    @test tle_epoch(tle)            ≈ datetime2julian(expected_epoch_dt)
+    @test tle_epoch(tle) ≈ datetime2julian(expected_epoch_dt)
     @test tle_epoch(DateTime, tle) == expected_epoch_dt
 end

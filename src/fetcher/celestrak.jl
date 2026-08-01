@@ -21,8 +21,7 @@ Create a TLE fetcher from Celestrak service.
   (**Default**: "https://celestrak.org/NORAD/elements/gp.php")
 """
 function create_tle_fetcher(
-    ::Type{CelestrakTleFetcher};
-    url::String = "https://celestrak.org/NORAD/elements/gp.php"
+    ::Type{CelestrakTleFetcher}; url::String = "https://celestrak.org/NORAD/elements/gp.php"
 )
     return CelestrakTleFetcher(url)
 end
@@ -64,8 +63,10 @@ function fetch_tles(
 
         # The satellite number cannot have more than 9 digits and must be
         # positive.
-        satellite_number <  0       && throw(ArgumentError("The satellite number must be positive."))
-        satellite_number >= 100_000 && throw(ArgumentError("The satellite number must be lower than 100000."))
+        satellite_number < 0 &&
+            throw(ArgumentError("The satellite number must be positive."))
+        satellite_number >= 100_000 &&
+            throw(ArgumentError("The satellite number must be lower than 100000."))
 
         query_type  = "satellite number"
         query_value = string(satellite_number)
@@ -78,8 +79,9 @@ function fetch_tles(
         #
         # where `YYYY` is the launch year, and `NNN` is the launch number.
 
-        isnothing(match(r"^[0-9]{4}-[0-9]{3}$", international_designator)) &&
-            throw(ArgumentError("The international designator must have the format `YYYY-NNN`."))
+        isnothing(match(r"^[0-9]{4}-[0-9]{3}$", international_designator)) && throw(
+            ArgumentError("The international designator must have the format `YYYY-NNN`."),
+        )
 
         query_type  = "international designator"
         query_value = international_designator
@@ -94,7 +96,6 @@ function fetch_tles(
 
     else
         throw(ArgumentError("No query information was provided."))
-
     end
 
     @info "Fetch TLEs from Celestrak using $query_type: \"$query_value\" ..."

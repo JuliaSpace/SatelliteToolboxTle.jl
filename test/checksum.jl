@@ -13,8 +13,8 @@
 
     # Only ASCII digits and the minus sign have a value. Other characters, including
     # Unicode numerals, must count as 0.
-    @test tle_line_checksum("123")     == 6
-    @test tle_line_checksum("1-2-3")   == 8
+    @test tle_line_checksum("123") == 6
+    @test tle_line_checksum("1-2-3") == 8
     @test tle_line_checksum("A b.+/#") == 0
-    @test tle_line_checksum("¾٣½1")    == 1
+    @test tle_line_checksum("¾٣½1") == 1
 end

@@ -39,7 +39,7 @@ function _show_tle(io::IO, tle::TLE; color::Bool = true)
     y = color ? _Y : ""
 
     # Auxiliary variables.
-    name                     = tle.name
+    name = tle.name
 
     satellite_number         = tle.satellite_number
     international_designator = tle.international_designator
@@ -51,14 +51,15 @@ function _show_tle(io::IO, tle::TLE; color::Bool = true)
     ddn_o6                   = tle.ddn_o6
     bstar                    = tle.bstar
 
-    inclination              = tle.inclination
-    raan                     = tle.raan
-    eccentricity             = tle.eccentricity
-    argument_of_perigee      = tle.argument_of_perigee
-    mean_anomaly             = tle.mean_anomaly
-    mean_motion              = tle.mean_motion
-    revolution_number        = tle.revolution_number
+    inclination         = tle.inclination
+    raan                = tle.raan
+    eccentricity        = tle.eccentricity
+    argument_of_perigee = tle.argument_of_perigee
+    mean_anomaly        = tle.mean_anomaly
+    mean_motion         = tle.mean_motion
+    revolution_number   = tle.revolution_number
 
+    #! format: off
     # Print the TLE information.
     print(io, "TLE:\n")
     print(io, "$(b)                      Name : $(d)"); @printf(io, "%s\n",                name)
@@ -76,6 +77,7 @@ function _show_tle(io::IO, tle::TLE; color::Bool = true)
     print(io, "$(b)                        B* : $(d)"); @printf(io, "%12g 1 / er\n",       bstar)
     print(io, "$(b)                     ṅ / 2 : $(d)"); @printf(io, "%12g rev / day²\n",   dn_o2)
     print(io, "$(b)                     n̈ / 6 : $(d)"); @printf(io, "%12g rev / day³",     ddn_o6)
+    #! format: on
 
     return nothing
 end

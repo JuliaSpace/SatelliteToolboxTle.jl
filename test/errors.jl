@@ -5,8 +5,7 @@
 ############################################################################################
 
 @testset "Errors When Creating TLEs" begin
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         satellite_number    = -1,
         epoch_year          = 23,
         epoch_day           = 83.68657856,
@@ -18,8 +17,7 @@
         mean_motion         = 14.40814394,
     )
 
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         epoch_year          = 23,
         epoch_day           = 83.68657856,
         inclination         = 98.4304,
@@ -30,8 +28,7 @@
         mean_motion         = 14.40814394,
     )
 
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         epoch_year          = 23,
         epoch_day           = 83.68657856,
         inclination         = 98.4304,
@@ -42,8 +39,7 @@
         mean_motion         = 14.40814394,
     )
 
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         epoch_year          = -1,
         epoch_day           = 83.68657856,
         inclination         = 98.4304,
@@ -54,8 +50,7 @@
         mean_motion         = 14.40814394,
     )
 
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         epoch_year          = 23,
         epoch_day           = -0.1,
         inclination         = 98.4304,
@@ -66,8 +61,7 @@
         mean_motion         = 14.40814394,
     )
 
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         element_set_number  = -1,
         epoch_year          = 23,
         epoch_day           = 83.68657856,
@@ -79,8 +73,7 @@
         mean_motion         = 14.40814394,
     )
 
-    @test_throws ArgumentError TLE(
-        ;
+    @test_throws ArgumentError TLE(;
         revolution_number   = -1,
         epoch_year          = 23,
         epoch_day           = 83.68657856,

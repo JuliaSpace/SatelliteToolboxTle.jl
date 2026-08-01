@@ -31,7 +31,7 @@ end
     include("./printing.jl")
 end
 
-@testset "TLE Creation"  verbose = true begin
+@testset "TLE Creation" verbose = true begin
     include("./errors.jl")
 end
 

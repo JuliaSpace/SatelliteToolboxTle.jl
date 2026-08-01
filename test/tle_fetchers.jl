@@ -20,7 +20,8 @@ end
 
     # == Search By Satellite Number ========================================================
 
-    tles = fetch_tles(f;
+    tles = fetch_tles(
+        f;
         satellite_number = 47699,
         international_designator = "2023-001", # . This option will be neglected
         satellite_name = "CBERS 4",            # . This option will be neglected
@@ -30,22 +31,23 @@ end
 
     amz1_tle = tles |> first
 
-    @test amz1_tle.name                     == "AMAZONIA 1"
+    @test amz1_tle.name == "AMAZONIA 1"
     @test amz1_tle.international_designator == "21015A"
-    @test amz1_tle.satellite_number         == 47699
+    @test amz1_tle.satellite_number == 47699
 
     # == Search By International Designator ================================================
 
-    tles = fetch_tles(f;
+    tles = fetch_tles(
+        f;
         international_designator = "2021-015",
         satellite_name = "CBERS 4",            # . This option will be neglected
     )
 
     amz1_tle = tles |> first
 
-    @test amz1_tle.name                     == "AMAZONIA 1"
+    @test amz1_tle.name == "AMAZONIA 1"
     @test amz1_tle.international_designator == "21015A"
-    @test amz1_tle.satellite_number         == 47699
+    @test amz1_tle.satellite_number == 47699
 
     # == Search By Satellite Name ==========================================================
 
@@ -55,9 +57,9 @@ end
 
     amz1_tle = tles |> first
 
-    @test amz1_tle.name                     == "AMAZONIA 1"
+    @test amz1_tle.name == "AMAZONIA 1"
     @test amz1_tle.international_designator == "21015A"
-    @test amz1_tle.satellite_number         == 47699
+    @test amz1_tle.satellite_number == 47699
 
     # == No Data Found =====================================================================
 

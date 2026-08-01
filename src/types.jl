@@ -97,8 +97,9 @@ Base.@kwdef struct TLE
         argument_of_perigee::Number,
         mean_anomaly::Number,
         mean_motion::Number,
-        revolution_number::Int
+        revolution_number::Int,
     )
+        #! format: off
         # Verify inputs.
         satellite_number >= 0   || throw(ArgumentError("Satellite number must be non-negative."))
         0 <= eccentricity < 1   || throw(ArgumentError("Eccentricity must be between 0 and 1."))
@@ -106,6 +107,7 @@ Base.@kwdef struct TLE
         epoch_day >= 0          || throw(ArgumentError("Day must be non-negative."))
         element_set_number >= 0 || throw(ArgumentError("Element set number must be non-negative."))
         revolution_number >= 0  || throw(ArgumentError("Revolution number must be non-negative."))
+        #! format: on
 
         new(
             name,
