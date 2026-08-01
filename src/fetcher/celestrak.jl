@@ -119,7 +119,6 @@ function fetch_tles(
 
     elseif !isnothing(match(r"Invalid query", str))
         throw(ErrorException("Invalid query: $query"))
-        return nothing
     end
 
     # Parse the TLEs.
