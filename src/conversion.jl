@@ -10,6 +10,16 @@ export tle_epoch
 #                                        Overloads                                         #
 ############################################################################################
 
+"""
+    convert(::Type{String}, tle::TLE) -> String
+
+Convert `tle` to its string representation, returning the satellite name line followed by
+the two TLE lines with recomputed checksums.
+
+The angles (inclination, RAAN, argument of perigee, and mean anomaly) are normalized to the
+interval [0, 360)° before being written. If a value cannot be represented in its TLE field,
+the field is saturated and a warning is emitted.
+"""
 function convert(::Type{String}, tle::TLE)
     # == Unpack Fields =====================================================================
 
