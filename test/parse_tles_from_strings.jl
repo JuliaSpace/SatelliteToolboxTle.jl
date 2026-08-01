@@ -877,7 +877,7 @@ end
 
     @test_logs (
         :error,
-        "[Line 5]: The rigth ascension of the ascending node (RAAN) in the TLE line 2 could not be parsed."
+        "[Line 5]: The right ascension of the ascending node (RAAN) in the TLE line 2 could not be parsed."
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 

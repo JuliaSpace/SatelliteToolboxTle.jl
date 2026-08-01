@@ -9,7 +9,7 @@ export TLE, AbstractTleFetcher
 """
     struct TLE
 
-Store the elements of a TLE (two-line elemens) using the same units.
+Store the elements of a TLE (two-line elements) using the same units.
 
 !!! note
 
@@ -34,7 +34,7 @@ Store the elements of a TLE (two-line elemens) using the same units.
 
 ## Second line
 
-- `incliantion`: Inclination [deg].
+- `inclination`: Inclination [deg].
 - `raan`: Right ascension of the ascending node [deg].
 - `eccentricity`: Eccentricity [ ].
 - `argument_of_perigee`: Argument of perigee [deg].

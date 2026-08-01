@@ -14,9 +14,9 @@ export read_tle, read_tles, read_tles_from_file
 """
     @tle_str(str) -> TLE
 
-Parse one TLE in the string `str.
+Parse one TLE in the string `str`.
 
-This function returns the parsed TLE or `nothing`, if an error occured.
+This function returns the parsed TLE or `nothing`, if an error occurred.
 
 !!! note
 
@@ -45,9 +45,9 @@ end
 """
     @tle_nc_str(str) -> TLE
 
-Parse one TLE in the string `str.
+Parse one TLE in the string `str`.
 
-This function returns the parsed TLE or `nothing`, if an error occured.
+This function returns the parsed TLE or `nothing`, if an error occurred.
 
 !!! note
 

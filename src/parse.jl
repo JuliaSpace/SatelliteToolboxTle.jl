@@ -10,8 +10,7 @@
 
 # Parse the TLE with first line `l1`, and second line `l2`.
 #
-# It returns the `TLE` if the information was parsed was successfully, or `nothing`
-# otherwise.
+# It returns the `TLE` if the information was parsed successfully, or `nothing` otherwise.
 function _parse_tle(
     l1::AbstractString,
     l2::AbstractString;
@@ -164,7 +163,7 @@ function _parse_tle(
         @view(l2[18:25]),
         2,
         debug_prefix,
-        "rigth ascension of the ascending node (RAAN)"
+        "right ascension of the ascending node (RAAN)"
     )
     isnothing(raan) && return nothing
 
@@ -258,7 +257,7 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
     line           = SubString("")
     skip_line_read = false
 
-    # Variables to store the each TLE inforamtion.
+    # Variables to store each TLE information.
     name   = SubString("")
     line_1 = SubString("")
     line_2 = SubString("")
@@ -355,8 +354,8 @@ function _parse_tles(io::IO; verify_checksum::Bool = true)
         end
     end
 
-    # If the final state is not :name, then we have an incomplete TLE. Thus, throw and
-    # exception because the file is not valid.
+    # If the final state is not :name, then we have an incomplete TLE. Thus, log an error
+    # because the file is not valid.
     state !== :name && @error("[Line $line_num]: " * "The last TLE in the file is incomplete.")
 
     return vtle
