@@ -119,6 +119,26 @@ end
         "The 2nd line is not valid."
     ) try read_tle(l1, l2) catch end
 
+    # == Lines With Multi-Byte Characters in the Middle ====================================
+
+    l1 = "1 47699É 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
+    l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
+
+    @test_throws ArgumentError read_tle(l1, l2)
+    @test_logs (
+        :error,
+        "The 1st line is not valid."
+    ) try read_tle(l1, l2) catch end
+
+    l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
+    l2 = "2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.4081439410865É"
+
+    @test_throws ArgumentError read_tle(l1, l2)
+    @test_logs (
+        :error,
+        "The 2nd line is not valid."
+    ) try read_tle(l1, l2) catch end
+
     # == Lines Starting With Multi-Byte Characters =========================================
 
     l1 = "λ 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"

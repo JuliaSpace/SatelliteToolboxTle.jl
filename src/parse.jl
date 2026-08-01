@@ -25,8 +25,9 @@ function _parse_tle(
 
     debug_prefix = l1_position == 0 ? "" : "[Line $l1_position]: "
 
-    # The first line must start with "1 " and have 69 characters.
-    if !startswith(l1, "1 ") || (length(l1) != 69)
+    # The first line must start with "1 " and have 69 ASCII characters. The ASCII check is
+    # required to safely index the line by bytes when slicing the fields.
+    if !startswith(l1, "1 ") || (length(l1) != 69) || !isascii(l1)
         @error(debug_prefix * "The 1st line is not valid.")
         return nothing
     end
@@ -116,8 +117,9 @@ function _parse_tle(
 
     debug_prefix = l2_position == 0 ? "" : "[Line $(l2_position)]: "
 
-    # The second line must start with "2 " and have 69 characters.
-    if !startswith(l2, "2 ") || (length(l2) != 69)
+    # The second line must start with "2 " and have 69 ASCII characters. The ASCII check is
+    # required to safely index the line by bytes when slicing the fields.
+    if !startswith(l2, "2 ") || (length(l2) != 69) || !isascii(l2)
         @error(debug_prefix * "The 2nd line is not valid.")
         return nothing
     end
