@@ -22,7 +22,7 @@ function tle_line_checksum(str::AbstractString)
         # Check if `c` is an ASCII digit. We must not use `isnumeric` here because it also
         # accepts Unicode numerals that cannot be parsed to an `Int`.
         if isdigit(c)
-            checksum += parse(Int, c)
+            checksum += c - '0'
 
         # Check if `c` is a minus sign, which has value 1.
         elseif c == '-'
