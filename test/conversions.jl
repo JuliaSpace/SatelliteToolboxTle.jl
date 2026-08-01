@@ -166,6 +166,67 @@ end
     @test read_tle(str).dn_o2 == 0.99999999
 end
 
+@testset "Conversion TLE => String, Exponents Outside the TLE Range" begin
+    tle = TLE(
+        ;
+        satellite_number         = 47699,
+        international_designator = "21015A",
+        epoch_year               = 23,
+        epoch_day                = 83.68657856,
+        ddn_o6                   = 1e11,
+        bstar                    = 1e-13,
+        element_set_number       = 999,
+        inclination              = 98.4304,
+        raan                     = 162.1097,
+        eccentricity             = 0.0001247,
+        argument_of_perigee      = 136.2017,
+        mean_anomaly             = 223.9283,
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    # The ddn_o6 exponent is larger than 9. Hence, the field must be saturated. The bstar
+    # exponent is lower than -9, but the value can still be represented by denormalizing
+    # the mantissa.
+    str = @test_logs (
+        :warn,
+        "The ddn_o6 magnitude is too large to be represented in a TLE. The field will " *
+        "be saturated."
+    ) convert(String, tle)
+
+    parsed = read_tle(str)
+
+    @test parsed.ddn_o6 == 9.9999e8
+    @test parsed.bstar  ≈  1e-13
+
+    # If the value is too small to be represented even with a denormalized mantissa, the
+    # field must be set to 0.
+    tle = TLE(
+        ;
+        satellite_number         = 47699,
+        international_designator = "21015A",
+        epoch_year               = 23,
+        epoch_day                = 83.68657856,
+        bstar                    = 1e-16,
+        element_set_number       = 999,
+        inclination              = 98.4304,
+        raan                     = 162.1097,
+        eccentricity             = 0.0001247,
+        argument_of_perigee      = 136.2017,
+        mean_anomaly             = 223.9283,
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    str = @test_logs (
+        :warn,
+        "The BSTAR magnitude is too small to be represented in a TLE. The field will " *
+        "be set to 0."
+    ) convert(String, tle)
+
+    @test read_tle(str).bstar == 0
+end
+
 # == Function: tle_epoch ===================================================================
 
 @testset "Function: tle_epoch" begin

@@ -101,6 +101,7 @@ function convert(::Type{String}, tle::TLE)
     # -- Second Time Derivative of the Mean Motion -----------------------------------------
 
     mant, exp = _get_mant_exp(abs(ddn_o6))
+    mant, exp = _adjust_mant_exp_to_tle_field(mant, exp, "ddn_o6")
 
     print(
         buf,
@@ -114,6 +115,7 @@ function convert(::Type{String}, tle::TLE)
     # -- BSTAR -----------------------------------------------------------------------------
 
     mant, exp = _get_mant_exp(abs(bstar))
+    mant, exp = _adjust_mant_exp_to_tle_field(mant, exp, "BSTAR")
 
     print(
         buf,
@@ -238,6 +240,35 @@ end
 ############################################################################################
 #                                    Private Functions                                     #
 ############################################################################################
+
+# Adjust the mantissa `mant` and exponent `exp` of the TLE field `field` so that the
+# exponent fits the single digit available in the TLE format.
+function _adjust_mant_exp_to_tle_field(mant::Float64, exp::Int, field::String)
+    if exp > 9
+        @warn(
+            "The $field magnitude is too large to be represented in a TLE. The field " *
+            "will be saturated."
+        )
+        return 0.99999, 9
+
+    elseif exp < -9
+        # We can still represent the value by denormalizing the mantissa. If the value is
+        # too small, the mantissa becomes 0 at the printed precision.
+        mant *= 10.0^(exp + 9)
+
+        if round(abs(mant); digits = 5) == 0
+            @warn(
+                "The $field magnitude is too small to be represented in a TLE. The " *
+                "field will be set to 0."
+            )
+            return 0.0, 0
+        end
+
+        return mant, -9
+    end
+
+    return mant, exp
+end
 
 # Get the mantissa and exponent of the number `n` so that `n = mant * 10^exp` with
 # `|mant| ∈ [0.1, 1)` when `mant` is rounded to `digits` decimal digits.
