@@ -40,7 +40,7 @@ function _parse_tle(
 
     # -- Satellite Number ------------------------------------------------------------------
 
-    satellite_number = _tle_try_parse(Int, l1[3:7], 1, debug_prefix, "satellite number")
+    satellite_number = _tle_try_parse(Int, @view(l1[3:7]), 1, debug_prefix, "satellite number")
     isnothing(satellite_number) && return nothing
 
     # -- Classification --------------------------------------------------------------------
@@ -49,28 +49,28 @@ function _parse_tle(
 
     # -- International Designator ----------------------------------------------------------
 
-    international_designator = strip(l1[10:17])
+    international_designator = strip(@view l1[10:17])
 
     # -- Epoch -----------------------------------------------------------------------------
 
-    epoch_year = _tle_try_parse(Int, l1[19:20], 1, debug_prefix, "epoch year")
+    epoch_year = _tle_try_parse(Int, @view(l1[19:20]), 1, debug_prefix, "epoch year")
     isnothing(epoch_year) && return nothing
 
-    epoch_day = _tle_try_parse(Float64, l1[21:32], 1, debug_prefix, "epoch day")
+    epoch_day = _tle_try_parse(Float64, @view(l1[21:32]), 1, debug_prefix, "epoch day")
     isnothing(epoch_day) && return nothing
 
     # -- Mean Motion Derivatives -----------------------------------------------------------
 
     dn_o2 = _tle_try_parse(
         Float64,
-        l1[34:43],
+        @view(l1[34:43]),
         1,
         debug_prefix,
         "first derivative of mean motion (dn_o2)"
     )
     isnothing(dn_o2) && return nothing
 
-    aux = ((l1[45] == ' ') ? "+." : l1[45] * "." ) * l1[46:50]
+    aux = ((l1[45] == ' ') ? "+." : l1[45] * ".") * @view(l1[46:50])
 
     ddn_o6_dec = _tle_try_parse(
         Float64,
@@ -83,7 +83,7 @@ function _parse_tle(
 
     ddn_o6_exp = _tle_try_parse(
         Float64,
-        l1[51:52],
+        @view(l1[51:52]),
         1,
         debug_prefix,
         "second derivative of mean motion (ddn_o6)"
@@ -94,12 +94,12 @@ function _parse_tle(
 
     # -- BSTAR -----------------------------------------------------------------------------
 
-    aux = ((l1[54] == ' ') ? "+." : l1[54] * "." ) * l1[55:59]
+    aux = ((l1[54] == ' ') ? "+." : l1[54] * ".") * @view(l1[55:59])
 
     bstar_dec = _tle_try_parse(Float64, aux, 1, debug_prefix, "BSTAR")
     isnothing(bstar_dec) && return nothing
 
-    bstar_exp = _tle_try_parse(Float64, l1[60:61], 1, debug_prefix, "BSTAR")
+    bstar_exp = _tle_try_parse(Float64, @view(l1[60:61]), 1, debug_prefix, "BSTAR")
     isnothing(bstar_exp) && return nothing
 
     bstar = bstar_dec * 10^bstar_exp
@@ -110,7 +110,13 @@ function _parse_tle(
 
     # -- Element Number --------------------------------------------------------------------
 
-    element_set_number = _tle_try_parse(Int, l1[65:68], 1, debug_prefix, "element set number")
+    element_set_number = _tle_try_parse(
+        Int,
+        @view(l1[65:68]),
+        1,
+        debug_prefix,
+        "element set number"
+    )
     isnothing(element_set_number) && return nothing
 
     # == Second Line =======================================================================
@@ -132,7 +138,13 @@ function _parse_tle(
 
     # -- Compare Satellite Number with the One in the First Line ---------------------------
 
-    satellite_number_line_2 = _tle_try_parse(Int, l2[3:7], 2, debug_prefix, "satellite number")
+    satellite_number_line_2 = _tle_try_parse(
+        Int,
+        @view(l2[3:7]),
+        2,
+        debug_prefix,
+        "satellite number"
+    )
     isnothing(satellite_number_line_2) && return nothing
 
     if satellite_number_line_2 != satellite_number
@@ -142,14 +154,14 @@ function _parse_tle(
 
     # -- Inclination -----------------------------------------------------------------------
 
-    inclination = _tle_try_parse(Float64, l2[9:16], 2, debug_prefix, "inclination")
+    inclination = _tle_try_parse(Float64, @view(l2[9:16]), 2, debug_prefix, "inclination")
     isnothing(inclination) && return nothing
 
     # -- RAAN ------------------------------------------------------------------------------
 
     raan = _tle_try_parse(
         Float64,
-        l2[18:25],
+        @view(l2[18:25]),
         2,
         debug_prefix,
         "rigth ascension of the ascending node (RAAN)"
@@ -158,14 +170,20 @@ function _parse_tle(
 
     # -- Eccentricity ----------------------------------------------------------------------
 
-    eccentricity = _tle_try_parse(Float64, "." * l2[27:33], 2, debug_prefix, "eccentricity")
+    eccentricity = _tle_try_parse(
+        Float64,
+        "." * @view(l2[27:33]),
+        2,
+        debug_prefix,
+        "eccentricity"
+    )
     isnothing(eccentricity) && return nothing
 
     # -- Argument of Perigee ---------------------------------------------------------------
 
     argument_of_perigee = _tle_try_parse(
         Float64,
-        l2[35:42],
+        @view(l2[35:42]),
         2,
         debug_prefix,
         "argument of perigee"
@@ -174,17 +192,17 @@ function _parse_tle(
 
     # -- Mean Anomaly ----------------------------------------------------------------------
 
-    mean_anomaly = _tle_try_parse(Float64, l2[44:51], 2, debug_prefix, "mean anomaly")
+    mean_anomaly = _tle_try_parse(Float64, @view(l2[44:51]), 2, debug_prefix, "mean anomaly")
     isnothing(mean_anomaly) && return nothing
 
     # -- Mean Motion -----------------------------------------------------------------------
 
-    mean_motion = _tle_try_parse(Float64, l2[53:63], 2, debug_prefix, "mean motion")
+    mean_motion = _tle_try_parse(Float64, @view(l2[53:63]), 2, debug_prefix, "mean motion")
     isnothing(mean_motion) && return nothing
 
     # -- Revolution Number at Epoch --------------------------------------------------------
 
-    revolution_number = _tle_try_parse(Int, l2[64:68], 2, debug_prefix, "revolution number")
+    revolution_number = _tle_try_parse(Int, @view(l2[64:68]), 2, debug_prefix, "revolution number")
     isnothing(revolution_number) && return nothing
 
     # == Create the TLE ====================================================================
@@ -355,7 +373,7 @@ function _verify_tle_line_checksum(
     # Try parsing the line checksum.
     checksum = _tle_try_parse(
         Int,
-        string(line[69]),
+        @view(line[69:69]),
         1,
         debug_prefix,
         "line $line_number checksum"
