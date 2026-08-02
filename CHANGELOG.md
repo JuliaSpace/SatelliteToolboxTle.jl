@@ -1,6 +1,22 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
+Version 1.1.1
+-------------
+
+- ![Enhancement][badge-enhancement] The `TLE` constructor now validates its inputs (for
+  example, a negative eccentricity throws an error), and angles are normalized to the
+  interval [0, 360]° when converting a TLE to a string, avoiding formatting errors.
+- ![Enhancement][badge-enhancement] Improve performance and reduce allocations when parsing
+  TLEs and computing checksums.
+- ![Enhancement][badge-enhancement] Fix factual errors, typos, and grammar in the
+  documentation, and add a docstring to `convert(String, tle)`.
+- ![Bugfix][badge-bugfix] Fix crashes when parsing TLEs or computing checksums for lines
+  that are too short or contain non-ASCII characters.
+- ![Bugfix][badge-bugfix] Fix several errors when converting a TLE to its string
+  representation: the epoch year is now zero-padded, rounding can no longer overflow the
+  fixed-width fields, and exponents outside ±9 are handled correctly.
+
 Version 1.1.0
 -------------
 
@@ -57,9 +73,9 @@ Version 0.1.0
   - This version was based on the submodule in **SatelliteToolbox.jl**. However,
     many API changes were implemented.
 
-[badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
-[badge-deprecation]: https://img.shields.io/badge/Deprecation-orange.svg
-[badge-feature]: https://img.shields.io/badge/Feature-green.svg
-[badge-enhancement]: https://img.shields.io/badge/Enhancement-blue.svg
-[badge-bugfix]: https://img.shields.io/badge/Bugfix-purple.svg
-[badge-info]: https://img.shields.io/badge/Info-gray.svg
+[badge-breaking]: https://img.shields.io/badge/Breaking-DC2626?style=flat-square
+[badge-deprecation]: https://img.shields.io/badge/Deprecation-D97706?style=flat-square
+[badge-feature]: https://img.shields.io/badge/Feature-16A34A?style=flat-square
+[badge-enhancement]: https://img.shields.io/badge/Enhancement-0284C7?style=flat-square
+[badge-bugfix]: https://img.shields.io/badge/Bugfix-DB2777?style=flat-square
+[badge-info]: https://img.shields.io/badge/Info-475569?style=flat-square
