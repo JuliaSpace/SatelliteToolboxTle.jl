@@ -7,10 +7,27 @@ Version 2.0.0
 - ![BREAKING][badge-breaking] Remove `convert(String, tle)`, which invalidated the compiled
   `convert(String, ::Any)` call sites of Base and other packages. Use
   `write_tle(String, tle)` instead, which returns the same text with a trailing newline.
-- ![Feature][badge-feature] Add the exception `TleParseError`, thrown by the parsing
-  functions with the line number and a description of the problem. The parsers no longer
-  log errors, and the functions that read multiple TLEs emit a warning and skip the invalid
-  ones.
+- ![BREAKING][badge-breaking] The parsing functions now throw the new exception
+  `TleParseError`, with the line number and a description of the problem, instead of
+  logging an error and throwing an `ArgumentError`. The functions that read multiple TLEs
+  emit a warning and skip the invalid ones instead of logging an error.
+- ![BREAKING][badge-breaking] The `TLE` constructor now validates that every field fits the
+  fixed-width TLE format, throwing an `ArgumentError` otherwise, so that writing a TLE
+  never fails. Previously, a satellite number, epoch day, element set number, or
+  revolution number that did not fit its field was silently truncated when writing the
+  TLE.
+- ![BREAKING][badge-breaking] Fix the interpretation of the two-digit epoch year: years
+  from 57 to 99 now refer to the 20th century, matching the SGP4 reference implementation,
+  instead of years above 75. Hence, `tle_epoch` returns a different date for the years
+  from 57 to 75.
+- ![BREAKING][badge-breaking] The angles that round to 360° at the printed precision are
+  now written as 0°, and a mean motion that rounds to 100 rev/day is saturated instead of
+  overflowing the field.
+- ![BREAKING][badge-breaking] The Celestrak fetcher now requires exactly one query
+  parameter, throwing an `ArgumentError` otherwise, and accepts only integer satellite
+  numbers. Request failures throw the new exception `TleFetchError`, with the URL and the
+  HTTP status of the request, and the unregistered fetcher methods throw an
+  `ArgumentError` instead of an `ErrorException`.
 - ![Feature][badge-feature] Add the functions `write_tle` and `write_tles` to write TLEs to
   streams and files, or to return their text when the first argument is `String`.
 - ![Feature][badge-feature] Add the keyword `epoch::DateTime` to the `TLE` constructor and
@@ -19,31 +36,18 @@ Version 2.0.0
   parsed and written back instead of being discarded with a warning.
 - ![Feature][badge-feature] Add support for satellite catalog numbers above 99999 using the
   Alpha-5 scheme when parsing and writing TLEs.
-- ![Feature][badge-feature] Add the exception `TleFetchError`, thrown by the Celestrak
-  fetcher when the request fails, with the URL and the HTTP status of the request. The
-  fetcher now requires exactly one query parameter, accepts international designators with
-  the launch piece, and preserves the query parameters of custom endpoints.
+- ![Feature][badge-feature] The Celestrak fetcher now accepts international designators
+  with the launch piece and preserves the query parameters of custom endpoints.
 - ![Enhancement][badge-enhancement] Replace **Crayons.jl** by the tree printing helpers of
   **SatelliteToolboxBase.jl**, so that the TLE is displayed with the same layout and
   customizable `StyledStrings` faces as the other types of the ecosystem. The compact
   representation now includes the satellite number.
-- ![Enhancement][badge-enhancement] The `TLE` constructor now validates that every field
-  fits the fixed-width TLE format, so that writing a TLE never fails.
 - ![Enhancement][badge-enhancement] Parse the TLE fields with an implied decimal point as
   integers scaled by exact powers of ten, which yields correctly rounded values and removes
   all allocations from the parser. Write the TLE lines digit by digit, removing the
   **Printf** dependency and reducing the writing time and allocations by roughly 6 times.
 - ![Enhancement][badge-enhancement] Simplify the multi-TLE reader and the functions that
   compute the TLE epoch, which no longer allocate.
-- ![Bugfix][badge-bugfix] Fix the interpretation of the two-digit epoch year: years from 57
-  to 99 now refer to the 20th century, matching the SGP4 reference implementation, instead
-  of years above 75.
-- ![Bugfix][badge-bugfix] Fix the silent truncation of the satellite number, epoch day,
-  element set number, and revolution number when writing a TLE with values that do not fit
-  their fields. Those values are now rejected by the `TLE` constructor.
-- ![Bugfix][badge-bugfix] Fix the angles that round to 360° at the printed precision, which
-  are now written as 0°, and the mean motion that rounds to 100 rev/day, which is now
-  saturated instead of overflowing the field.
 - ![Bugfix][badge-bugfix] Fix the documentation of the fetcher API and of the return type
   of `fetch_tles`.
 
