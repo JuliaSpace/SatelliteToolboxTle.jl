@@ -4,7 +4,7 @@ This package allows creating, fetching, and parsing TLEs (two-line elements).
 
 ## Two-line elements
 
-The TLE, or two-line elements, is a fixed-width format that express the mean elements of a
+The TLE, or two-line elements, is a fixed-width format that expresses the mean elements of an
 object in Earth's orbit. They are used as input for the Simplified General Perturbation
 Model 4 (SGP4 / SDP4) to propagate satellite orbits.
 

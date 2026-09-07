@@ -28,3 +28,21 @@ using Dates
 
 tle_epoch(DateTime, tle)
 ```
+
+The property `epoch` of the TLE is a shortcut for the latter:
+
+```@repl auxiliary_functions
+tle.epoch
+```
+
+The two-digit epoch year is interpreted according to the SGP4 reference implementation:
+years from 57 to 99 refer to the 20th century, and years from 0 to 56 to the 21st century.
+
+## Line checksum
+
+The checksum of a TLE line can be computed using the function
+[`tle_line_checksum`](@ref), which receives the line without the checksum digit:
+
+```@repl auxiliary_functions
+tle_line_checksum("1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  999")
+```

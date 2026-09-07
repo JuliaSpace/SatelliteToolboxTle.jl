@@ -24,25 +24,24 @@ Afterward, we can fetch the TLEs using the function [`fetch_tles`](@ref):
 fetch_tles(f, satellite_name = "AMAZONIA 1")
 ```
 
-This function will always return a `Vector{TLE}`.
+This function will always return a `Vector{TLE}`, which is empty if no TLE matches the
+query.
 
 For Celestrak fetcher, the following options are available:
 
-- `international_designator::Union{Nothing, AbstractString}`: International designator using
-    the Celestrak format `YYYY-NNN`, where `YYYY` is the launch year, and the `NNN` is the
-    launch number. (**Default**: `nothing`)
-- `satellite_number::Union{Nothing, Number}`: Satellite catalog number (NORAD).
+- `international_designator::Union{Nothing, AbstractString}`: International designator
+    using the format `YYYY-NNN` or `YYYY-NNNP`, where `YYYY` is the launch year, `NNN` is
+    the launch number, and `P` is the piece of the launch. (**Default**: `nothing`)
+- `satellite_number::Union{Nothing, Integer}`: Satellite catalog number (NORAD).
     (**Default** = `nothing`)
 - `satellite_name::Union{Nothing, AbstractString}`: Satellite name. Notice that the system
     will search for all satellites whose name contains this string.
     (**Default**: `nothing`)
 
 !!! note
-    Only one search parameter is supported. If more than one is given, the precedence is: 1)
-    `satellite_number`; 2) `international_designator`; and 3) and `satellite_name`.
 
-!!! note
-    If no search parameter is provided, the function throws an error.
+    Exactly one search parameter must be provided. Otherwise, the function throws an
+    `ArgumentError`.
 
 Thus, if we want to know, for example, all the satellites that were launched by the same
 rocket, we can search by the international designator as follows:
@@ -50,6 +49,9 @@ rocket, we can search by the international designator as follows:
 ```@repl fetching_tles
 fetch_tles(f, international_designator = "2021-015")
 ```
+
+If the request fails, for example because the service is unreachable, the function throws
+a [`TleFetchError`](@ref) with the URL and, if available, the HTTP status of the request.
 
 !!! warning
 
