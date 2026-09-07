@@ -1,7 +1,7 @@
 SatelliteToolboxTle.jl Changelog
 ================================
 
-Version 1.2.0
+Version 2.0.0
 -------------
 
 - ![BREAKING][badge-breaking] Remove `convert(String, tle)`, which invalidated the compiled
