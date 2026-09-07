@@ -4,6 +4,19 @@
 #
 ############################################################################################
 
+# Return the message of the `TleParseError` thrown by `f`, or `nothing` if it does not
+# throw.
+function _tle_parse_error_message(f)
+    try
+        f()
+    catch e
+        e isa TleParseError && return e.msg
+        rethrow(e)
+    end
+
+    return nothing
+end
+
 # == Function: read_tle ====================================================================
 
 @testset "Function: read_tle (Individual Lines)" begin
@@ -64,100 +77,80 @@ end
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9991"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "Wrong checksum in TLE line 1 (expected = 0, found = 1).") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "Wrong checksum in TLE line 1 (expected = 0, found = 1)."
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108655"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "Wrong checksum in TLE line 2 (expected = 2, found = 5).") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "Wrong checksum in TLE line 2 (expected = 2, found = 5)."
 
     # == Invalid Lines =====================================================================
 
     l1 = "       2 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108655"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 1st line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 1st line is not valid."
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 3 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 2nd line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 2nd line is not valid."
 
     # == Short Lines =======================================================================
 
     l1 = "1"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 1st line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 1st line is not valid."
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = "2"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 2nd line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 2nd line is not valid."
 
     # == Lines With Multi-Byte Characters in the Middle ====================================
 
     l1 = "1 47699É 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 1st line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 1st line is not valid."
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = "2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.4081439410865É"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 2nd line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 2nd line is not valid."
 
     # == Lines Starting With Multi-Byte Characters =========================================
 
     l1 = "λ 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = " 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 1st line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 1st line is not valid."
 
     l1 = "       1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990"
     l2 = "λ 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"
 
-    @test_throws ArgumentError read_tle(l1, l2)
-    @test_logs (:error, "The 2nd line is not valid.") try
-        read_tle(l1, l2)
-    catch
-    end
+    @test_throws TleParseError read_tle(l1, l2)
+    @test _tle_parse_error_message(() -> read_tle(l1, l2)) ==
+        "The 2nd line is not valid."
 end
 
 @testset "Function: read_tle (string)" begin
@@ -290,11 +283,9 @@ end
                 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
         """
 
-    @test_throws ArgumentError read_tle(tle_str)
-    @test_logs (:error, "Wrong checksum in TLE line 1 (expected = 0, found = 1).") try
-        read_tle(tle_str)
-    catch
-    end
+    @test_throws TleParseError read_tle(tle_str)
+    @test _tle_parse_error_message(() -> read_tle(tle_str)) ==
+        "Wrong checksum in TLE line 1 (expected = 0, found = 1)."
 
     tle_str = """
         # This line should be ignored
@@ -304,11 +295,9 @@ end
                 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108653
         """
 
-    @test_throws ArgumentError read_tle(tle_str)
-    @test_logs (:error, "Wrong checksum in TLE line 2 (expected = 2, found = 3).") try
-        read_tle(tle_str)
-    catch
-    end
+    @test_throws TleParseError read_tle(tle_str)
+    @test _tle_parse_error_message(() -> read_tle(tle_str)) ==
+        "Wrong checksum in TLE line 2 (expected = 2, found = 3)."
 
     # == Error Related With the Number of Lines ============================================
 
@@ -318,7 +307,7 @@ end
         # This is a comment.
         """
 
-    @test_throws ArgumentError read_tle(tle_str)
+    @test_throws TleParseError read_tle(tle_str)
 
     tle_str = """
         # This line should be ignored
@@ -329,7 +318,7 @@ end
                 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108653
         """
 
-    @test_throws ArgumentError read_tle(tle_str)
+    @test_throws TleParseError read_tle(tle_str)
 
     # == Invalid Lines =====================================================================
 
@@ -341,11 +330,9 @@ end
                 2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
         """
 
-    @test_throws ArgumentError read_tle(tle_str)
-    @test_logs (:error, "The 1st line is not valid.") try
-        read_tle(tle_str)
-    catch
-    end
+    @test_throws TleParseError read_tle(tle_str)
+    @test _tle_parse_error_message(() -> read_tle(tle_str)) ==
+        "The 1st line is not valid."
 
     tle_str = """
         # This line should be ignored
@@ -355,11 +342,9 @@ end
                 3 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
         """
 
-    @test_throws ArgumentError read_tle(tle_str)
-    @test_logs (:error, "The 2nd line is not valid.") try
-        read_tle(tle_str)
-    catch
-    end
+    @test_throws TleParseError read_tle(tle_str)
+    @test _tle_parse_error_message(() -> read_tle(tle_str)) ==
+        "The 2nd line is not valid."
 end
 
 # == Function: read_tles ===================================================================
@@ -622,7 +607,10 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 3]: This is not a valid 1st line.") read_tles(tles_str)
+    @test_logs (
+        :warn,
+        "[Line 3]: The 1st line is not valid. The TLE was skipped.",
+    ) read_tles(tles_str)
     @test length(read_tles(tles_str)) == 1
 
     tles_str = """
@@ -637,13 +625,16 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 5]: This is not a valid 2nd line.") read_tles(tles_str)
+    @test_logs (
+        :warn,
+        "[Line 5]: The 2nd line is not valid. The TLE was skipped.",
+    ) read_tles(tles_str)
     @test length(read_tles(tles_str)) == 1
 
     tles_str = """
         # This line should be ignored
              AMAZONIA 1
-          1 A7699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
+          1 I7699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
         # This is a comment.
             2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
             # Another comment
@@ -653,7 +644,9 @@ end
         """
 
     @test_logs (
-        :error, "[Line 3]: The satellite number in the TLE line 1 could not be parsed."
+        :warn,
+        "[Line 3]: The satellite number in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -669,9 +662,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 3]: The epoch year in the TLE line 1 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 3]: The epoch year in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -686,9 +681,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 3]: The epoch day in the TLE line 1 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 3]: The epoch day in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -704,8 +701,9 @@ end
         """
 
     @test_logs (
-        :error,
-        "[Line 3]: The first derivative of mean motion (dn_o2) in the TLE line 1 could not be parsed.",
+        :warn,
+        "[Line 3]: The first derivative of mean motion (dn_o2) in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -722,8 +720,9 @@ end
         """
 
     @test_logs (
-        :error,
-        "[Line 3]: The second derivative of mean motion (ddn_o6) in the TLE line 1 could not be parsed.",
+        :warn,
+        "[Line 3]: The second derivative of mean motion (ddn_o6) in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -740,8 +739,9 @@ end
         """
 
     @test_logs (
-        :error,
-        "[Line 3]: The second derivative of mean motion (ddn_o6) in the TLE line 1 could not be parsed.",
+        :warn,
+        "[Line 3]: The second derivative of mean motion (ddn_o6) in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -757,9 +757,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 3]: The BSTAR in the TLE line 1 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 3]: The BSTAR in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -774,10 +776,10 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:warn, "[Line 3]: TLE ephemeris type should be 0.") read_tles(
-        tles_str; verify_checksum = false
-    )
-    @test length(read_tles(tles_str; verify_checksum = false)) == 2
+    # The ephemeris type is stored in the TLE without any warning.
+    tles = @test_logs read_tles(tles_str; verify_checksum = false)
+    @test length(tles) == 2
+    @test first(tles).ephemeris_type == 1
 
     tles_str = """
         # This line should be ignored
@@ -792,7 +794,9 @@ end
         """
 
     @test_logs (
-        :error, "[Line 3]: The element set number in the TLE line 1 could not be parsed."
+        :warn,
+        "[Line 3]: The element set number in the TLE line 1 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -801,7 +805,7 @@ end
              AMAZONIA 1
           1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
         # This is a comment.
-            2 A7699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
+            2 I7699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
             # Another comment
         CBERS 4A
             1 44883U 19093E   23084.50188177  .00004132  00000+0  53225-3 0  9992
@@ -809,7 +813,9 @@ end
         """
 
     @test_logs (
-        :error, "[Line 5]: The satellite number in the TLE line 2 could not be parsed."
+        :warn,
+        "[Line 5]: The satellite number in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -826,7 +832,9 @@ end
         """
 
     @test_logs (
-        :error, "[Line 5]: Satellite number in line 2 is not equal to that in line 1."
+        :warn,
+        "[Line 5]: Satellite number in line 2 is not equal to that in line 1. " *
+        "The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -842,9 +850,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 5]: The inclination in the TLE line 2 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 5]: The inclination in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -860,8 +870,9 @@ end
         """
 
     @test_logs (
-        :error,
-        "[Line 5]: The right ascension of the ascending node (RAAN) in the TLE line 2 could not be parsed.",
+        :warn,
+        "[Line 5]: The right ascension of the ascending node (RAAN) in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -877,9 +888,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 5]: The eccentricity in the TLE line 2 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 5]: The eccentricity in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -895,7 +908,9 @@ end
         """
 
     @test_logs (
-        :error, "[Line 5]: The argument of perigee in the TLE line 2 could not be parsed."
+        :warn,
+        "[Line 5]: The argument of perigee in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -911,9 +926,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 5]: The mean anomaly in the TLE line 2 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 5]: The mean anomaly in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -928,9 +945,11 @@ end
             2 44883  97.8666 164.4776 0001781  94.0485 266.0964 14.81596492176403
         """
 
-    @test_logs (:error, "[Line 5]: The mean motion in the TLE line 2 could not be parsed.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 5]: The mean motion in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
     tles_str = """
@@ -946,7 +965,9 @@ end
         """
 
     @test_logs (
-        :error, "[Line 5]: The revolution number in the TLE line 2 could not be parsed."
+        :warn,
+        "[Line 5]: The revolution number in the TLE line 2 " *
+        "could not be parsed. The TLE was skipped.",
     ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 
@@ -963,8 +984,9 @@ end
             1 44883U 19093E   23084.50188177  .00004132  00000+0  53225-3 0  9992
         """
 
-    @test_logs (:error, "[Line 8]: The last TLE in the file is incomplete.") read_tles(
-        tles_str; verify_checksum = false
-    )
+    @test_logs (
+        :warn,
+        "[Line 8]: The last TLE in the input is incomplete.",
+    ) read_tles(tles_str; verify_checksum = false)
     @test length(read_tles(tles_str; verify_checksum = false)) == 1
 end

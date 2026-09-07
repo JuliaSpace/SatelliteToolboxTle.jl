@@ -15,23 +15,31 @@ The algorithm is simple: add all the numbers in the line, ignoring letters, spac
 and plus signs, but assigning +1 to the minus signs. The checksum is the remainder of the
 division by 10.
 """
-function tle_line_checksum(str::AbstractString)
+tle_line_checksum(str::AbstractString) = _tle_line_checksum(codeunits(str))
+
+############################################################################################
+#                                    Private Functions                                     #
+############################################################################################
+
+"""
+    _tle_line_checksum(bytes::AbstractVector{UInt8}) -> Int
+
+Compute the checksum modulo 10 of the line encoded in UTF-8 by `bytes`, as described in
+[`tle_line_checksum`](@ref).
+
+The computation can be performed byte by byte because only the ASCII digits and the minus
+sign have a value, and the bytes of the multi-byte characters never match them.
+"""
+function _tle_line_checksum(bytes::AbstractVector{UInt8})
     checksum = 0
 
-    for c in str
-        # Check if `c` is an ASCII digit. We must not use `isnumeric` here because it also
-        # accepts Unicode numerals that cannot be parsed to an `Int`.
-        if isdigit(c)
-            checksum += c - '0'
-
-            # Check if `c` is a minus sign, which has value 1.
-        elseif c == '-'
+    for b in bytes
+        if UInt8('0') <= b <= UInt8('9')
+            checksum += b - UInt8('0')
+        elseif b == UInt8('-')
             checksum += 1
         end
-
-        # Otherwise, the value of the character is 0.
     end
 
-    # Return the checksum modulo 10.
     return checksum % 10
 end

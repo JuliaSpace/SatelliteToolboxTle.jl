@@ -23,6 +23,10 @@ end
     include("./macros.jl")
 end
 
+@testset "Alpha-5 Satellite Numbers" verbose = true begin
+    include("./alpha5.jl")
+end
+
 @testset "Conversions" verbose = true begin
     include("./conversions.jl")
 end

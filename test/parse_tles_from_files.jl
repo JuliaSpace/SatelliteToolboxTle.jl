@@ -127,7 +127,9 @@ end
     @test cbers_tle.mean_motion == 14.81596492
     @test cbers_tle.revolution_number == 17640
 
-    @test_logs (:error, "[Line 3]: Wrong checksum in TLE line 1 (expected = 0, found = 3).") read_tles_from_file(
-        "samples-wrong_checksum.tle"
-    )
+    @test_logs (
+        :warn,
+        "[Line 3]: Wrong checksum in TLE line 1 (expected = 0, found = 3). The TLE was " *
+        "skipped.",
+    ) read_tles_from_file("samples-wrong_checksum.tle")
 end

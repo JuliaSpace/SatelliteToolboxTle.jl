@@ -12,21 +12,17 @@ export read_tle, read_tles, read_tles_from_file
 ############################################################################################
 
 """
-    @tle_str(str) -> TLE
+    @tle_str(str)
 
-Parse one TLE in the string `str`.
+Parse the single TLE in the string `str` at macro expansion time, returning a `TLE`. The
+checksums of both lines are verified. A `TleParseError` is thrown if `str` is not a valid
+TLE.
 
-This function returns the parsed TLE or `nothing`, if an error occurred.
+`str` must contain **only** one TLE, i.e. two or three non-empty lines: the optional
+satellite name and the two TLE lines. Blank lines and lines starting with `#` are
+discarded.
 
-!!! note
-
-    This function verifies the checksums of the TLE. If the checksum verification is not
-    desired, use [`@tle_nc_str`](@ref).
-
-!!! note
-
-    `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
-    The lines beginning with the character `#` are discarded.
+See also: [`@tle_nc_str`](@ref), [`read_tle`](@ref)
 
 # Example
 
@@ -43,26 +39,22 @@ macro tle_str(str)
 end
 
 """
-    @tle_nc_str(str) -> TLE
+    @tle_nc_str(str)
 
-Parse one TLE in the string `str`.
+Parse the single TLE in the string `str` at macro expansion time, returning a `TLE`. The
+checksums of the lines are **not** verified. A `TleParseError` is thrown if `str` is not
+a valid TLE.
 
-This function returns the parsed TLE or `nothing`, if an error occurred.
+`str` must contain **only** one TLE, i.e. two or three non-empty lines: the optional
+satellite name and the two TLE lines. Blank lines and lines starting with `#` are
+discarded.
 
-!!! note
-
-    This function **does not** verify the checksums of the TLE. If the checksum verification
-    is desired, use [`@tle_str`](@ref).
-
-!!! note
-
-    `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
-    The lines beginning with the character `#` are discarded.
+See also: [`@tle_str`](@ref), [`read_tle`](@ref)
 
 # Example
 
 ```julia-repl
-julia> tles = tle_nc\"""
+julia> tle = tle_nc\"""
        CBERS 4
        1 40336U 14079A   18166.15595376 -.00000014  00000-0  10174-4 0  9993
        2 40336  98.4141 237.7928 0001694  75.7582 284.3804 14.35485112184485
@@ -74,14 +66,13 @@ macro tle_nc_str(str)
 end
 
 """
-    @tles_str(str) -> Vector{TLE}
+    @tles_str(str)
 
-Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
+Parse the set of TLEs in the string `str` at macro expansion time, returning a
+`Vector{TLE}`. The checksums of the lines are verified, and the TLEs that cannot be parsed
+are skipped with a warning.
 
-!!! note
-
-    This function verifies the checksums of the TLE. If the checksum verification is not
-    desired, use [`@tles_nc_str`](@ref).
+See also: [`@tles_nc_str`](@ref), [`read_tles`](@ref)
 
 # Example
 
@@ -104,14 +95,13 @@ macro tles_str(str)
 end
 
 """
-    @tles_nc_str(str) -> Vector{TLE}
+    @tles_nc_str(str)
 
-Parse a set of TLEs in the string `str` and return them as a `Vector{TLE}`.
+Parse the set of TLEs in the string `str` at macro expansion time, returning a
+`Vector{TLE}`. The checksums of the lines are **not** verified, and the TLEs that cannot
+be parsed are skipped with a warning.
 
-!!! note
-
-    This version **does not** verify the checksum of the TLE. If the checksum verification
-    is required, use [`@tles_str`](@ref).
+See also: [`@tles_str`](@ref), [`read_tles`](@ref)
 
 # Example
 
@@ -138,51 +128,61 @@ end
 ############################################################################################
 
 """
-    read_tle(str::AbstractString; verify_checksum::Bool = true) -> TLE
+    read_tle(str::AbstractString; kwargs...) -> TLE
 
-Read the TLE in the string `str`.
+Read the single TLE in the string `str`, throwing a `TleParseError` if it is not valid.
 
-!!! note
+`str` must contain **only** one TLE, i.e. two or three non-empty lines: the optional
+satellite name and the two TLE lines. Blank lines and lines starting with `#` are
+discarded.
 
-    `str` must contain **only** one TLE. Hence, it must have two or three non-empty lines.
-    The lines beginning with the character `#` are discarded.
+See also: [`read_tles`](@ref), [`@tle_str`](@ref)
 
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
-    Otherwise, the checksum will not be checked. (**Default** = `true`)
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines is verified.
+    (**Default**: `true`)
+
+# Extended help
+
+## Throws
+
+- `TleParseError`: If `str` does not contain exactly one TLE, or if the TLE cannot be
+    parsed.
 """
 function read_tle(str::AbstractString; verify_checksum::Bool = true)
     # Split the string into lines, discarding empty lines and comments.
-    lines = filter(l -> !isempty(l) && (l[1] != '#'), strip.(split(str, '\n')))
+    lines     = filter(l -> !isempty(l) && (l[1] != '#'), strip.(split(str, '\n')))
     num_lines = length(lines)
 
-    if (num_lines != 2) && (num_lines != 3)
-        throw(ArgumentError("The string `str` must contain only one TLE (2 or 3 lines)."))
-    end
+    (num_lines == 2) || (num_lines == 3) ||
+        throw(TleParseError("The string must contain only one TLE (2 or 3 lines)."))
 
-    if (num_lines == 2)
-        tle = _parse_tle(lines[1], lines[2]; verify_checksum)
+    if num_lines == 2
+        return _parse_tle(lines[1], lines[2]; verify_checksum)
     else
-        tle = _parse_tle(lines[2], lines[3]; name = lines[1], verify_checksum)
+        return _parse_tle(lines[2], lines[3]; name = lines[1], verify_checksum)
     end
-
-    isnothing(tle) && throw(ArgumentError("The TLE is not valid."))
-
-    return tle
 end
 
 """
     read_tle(l1::AbstractString, l2::AbstractString; kwargs...) -> TLE
 
-Read the TLE in which the first line is `l1` and second line is `l2`.
+Read the TLE whose first line is `l1` and second line is `l2`, throwing a `TleParseError`
+if it is not valid. The surrounding whitespace of the lines is discarded.
 
 # Keywords
 
-- `name::AbstractString`: The satellite name in the returned TLE object.
-    (**Default** = "UNDEFINED")
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
-    Otherwise, the checksum will not be checked. (**Default** = `true`)
+- `name::AbstractString`: Satellite name assigned to the returned TLE.
+    (**Default**: `"UNDEFINED"`)
+- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines is verified.
+    (**Default**: `true`)
+
+# Extended help
+
+## Throws
+
+- `TleParseError`: If the TLE cannot be parsed.
 """
 function read_tle(
     l1::AbstractString,
@@ -190,42 +190,47 @@ function read_tle(
     name::AbstractString = "UNDEFINED",
     verify_checksum::Bool = true,
 )
-    tle = _parse_tle(strip(l1), strip(l2); name, verify_checksum)
-    isnothing(tle) && throw(ArgumentError("The TLE is not valid."))
-    return tle
+    return _parse_tle(strip(l1), strip(l2); name, verify_checksum)
 end
 
 """
-    read_tles(tles::AbstractString; verify_checksum::Bool = true) -> Vector{TLE}
+    read_tles(str::AbstractString; kwargs...) -> Vector{TLE}
 
-Parse a set of TLEs in the string `tles`. This function returns a `Vector{TLE}` with the
-parsed TLEs.
+Read the set of TLEs in the string `str`, returning them in a vector.
+
+Each TLE consists of an optional satellite name line followed by the two TLE lines. Blank
+lines and lines starting with `#` are discarded. The TLEs that cannot be parsed are skipped
+with a warning.
+
+See also: [`read_tle`](@ref), [`read_tles_from_file`](@ref), [`@tles_str`](@ref)
 
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
-    Otherwise, the checksum will not be checked. (**Default** = `true`)
+- `verify_checksum::Bool`: If `true`, the checksum of both lines of each TLE is verified.
+    (**Default**: `true`)
 """
-function read_tles(tles::AbstractString; verify_checksum::Bool = true)
-    # Convert the string to an `IOBuffer` and call the function to parse it.
-    return _parse_tles(IOBuffer(tles); verify_checksum)
+function read_tles(str::AbstractString; verify_checksum::Bool = true)
+    return _parse_tles(IOBuffer(str); verify_checksum)
 end
 
 """
-    read_tles_from_file(filename::String; verify_checksum::Bool = true) -> Vector{TLE}
+    read_tles_from_file(filename::AbstractString; kwargs...) -> Vector{TLE}
 
-Read the TLEs in the file `filename` and return a `Vector{TLE}` with the parsed TLEs.
+Read the set of TLEs in the file `filename`, returning them in a vector.
+
+Each TLE consists of an optional satellite name line followed by the two TLE lines. Blank
+lines and lines starting with `#` are discarded. The TLEs that cannot be parsed are skipped
+with a warning.
+
+See also: [`read_tles`](@ref), [`write_tles`](@ref)
 
 # Keywords
 
-- `verify_checksum::Bool`: If `true`, the checksum of both TLE lines will be verified.
-    Otherwise, the checksum will not be checked. (**Default** = `true`)
+- `verify_checksum::Bool`: If `true`, the checksum of both lines of each TLE is verified.
+    (**Default**: `true`)
 """
-function read_tles_from_file(filename::String; verify_checksum::Bool = true)
-    # Open the file in read mode.
-    tles = open(filename, "r") do f
-        return _parse_tles(f; verify_checksum)
+function read_tles_from_file(filename::AbstractString; verify_checksum::Bool = true)
+    return open(filename, "r") do io
+        return _parse_tles(io; verify_checksum)
     end
-
-    return tles
 end

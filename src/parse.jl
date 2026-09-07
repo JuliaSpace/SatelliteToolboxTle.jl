@@ -2,15 +2,34 @@
 #
 # Functions to parse TLEs.
 #
+# The parsers throw a `TleParseError` describing the first problem found. The functions
+# that parse a set of TLEs catch those errors, emit a warning, and skip the invalid TLE.
+#
 ############################################################################################
 
 ############################################################################################
 #                                    Private Functions                                     #
 ############################################################################################
 
-# Parse the TLE with first line `l1`, and second line `l2`.
-#
-# It returns the `TLE` if the information was parsed successfully, or `nothing` otherwise.
+"""
+    _parse_tle(l1::AbstractString, l2::AbstractString; kwargs...) -> TLE
+
+Parse the TLE with the first line `l1` and the second line `l2`, both without surrounding
+whitespace, throwing a `TleParseError` if the lines are not valid.
+
+# Keywords
+
+- `name::AbstractString`: Satellite name assigned to the parsed TLE.
+    (**Default**: `"UNDEFINED"`)
+- `l1_position::Int`: Number of `l1` in the input, used in the error messages, or `0` if
+    unknown.
+    (**Default**: `0`)
+- `l2_position::Int`: Number of `l2` in the input, used in the error messages, or `0` if
+    unknown.
+    (**Default**: `0`)
+- `verify_checksum::Bool`: If `true`, the checksum of both lines is verified.
+    (**Default**: `true`)
+"""
 function _parse_tle(
     l1::AbstractString,
     l2::AbstractString;
@@ -19,380 +38,432 @@ function _parse_tle(
     l2_position::Int = 0,
     verify_checksum::Bool = true,
 )
-
     # == First Line ========================================================================
 
-    debug_prefix = l1_position == 0 ? "" : "[Line $l1_position]: "
+    _check_tle_line(l1, 1, l1_position)
+    verify_checksum && _verify_tle_line_checksum(l1, 1, l1_position)
 
-    # The first line must start with "1 " and have 69 ASCII characters. The ASCII check is
-    # required to safely index the line by bytes when slicing the fields.
-    if !startswith(l1, "1 ") || (length(l1) != 69) || !isascii(l1)
-        @error(debug_prefix * "The 1st line is not valid.")
-        return nothing
-    end
+    # The line is ASCII, so it can be indexed by bytes.
+    cu = codeunits(l1)
 
-    # -- Verify the Checksum ---------------------------------------------------------------
+    satellite_number         = _parse_satellite_number(cu, 1, l1_position)
+    classification           = Char(cu[8])
+    international_designator = String(strip(SubString(l1, 10, 17)))
+    epoch_year               = _parse_tle_int(cu, 19:20, 1, l1_position, "epoch year")
+    epoch_day                = _parse_tle_float(l1, 21:32, 1, l1_position, "epoch day")
 
-    if verify_checksum && !_verify_tle_line_checksum(l1, 1; debug_prefix = debug_prefix)
-        return nothing
-    end
-
-    # -- Satellite Number ------------------------------------------------------------------
-
-    satellite_number = _tle_try_parse(
-        Int, @view(l1[3:7]), 1, debug_prefix, "satellite number"
+    dn_o2 = _parse_tle_float(
+        l1, 34:43, 1, l1_position, "first derivative of mean motion (dn_o2)"
     )
-    isnothing(satellite_number) && return nothing
 
-    # -- Classification --------------------------------------------------------------------
-
-    classification = Char(l1[8])
-
-    # -- International Designator ----------------------------------------------------------
-
-    international_designator = strip(@view l1[10:17])
-
-    # -- Epoch -----------------------------------------------------------------------------
-
-    epoch_year = _tle_try_parse(Int, @view(l1[19:20]), 1, debug_prefix, "epoch year")
-    isnothing(epoch_year) && return nothing
-
-    epoch_day = _tle_try_parse(Float64, @view(l1[21:32]), 1, debug_prefix, "epoch day")
-    isnothing(epoch_day) && return nothing
-
-    # -- Mean Motion Derivatives -----------------------------------------------------------
-
-    dn_o2 = _tle_try_parse(
-        Float64,
-        @view(l1[34:43]),
-        1,
-        debug_prefix,
-        "first derivative of mean motion (dn_o2)",
+    ddn_o6 = _parse_tle_exponential(
+        cu, 45, 1, l1_position, "second derivative of mean motion (ddn_o6)"
     )
-    isnothing(dn_o2) && return nothing
 
-    aux = ((l1[45] == ' ') ? "+." : l1[45] * ".") * @view(l1[46:50])
-
-    ddn_o6_dec = _tle_try_parse(
-        Float64, aux, 1, debug_prefix, "second derivative of mean motion (ddn_o6)"
-    )
-    isnothing(ddn_o6_dec) && return nothing
-
-    ddn_o6_exp = _tle_try_parse(
-        Float64,
-        @view(l1[51:52]),
-        1,
-        debug_prefix,
-        "second derivative of mean motion (ddn_o6)",
-    )
-    isnothing(ddn_o6_exp) && return nothing
-
-    ddn_o6 = ddn_o6_dec * 10^ddn_o6_exp
-
-    # -- BSTAR -----------------------------------------------------------------------------
-
-    aux = ((l1[54] == ' ') ? "+." : l1[54] * ".") * @view(l1[55:59])
-
-    bstar_dec = _tle_try_parse(Float64, aux, 1, debug_prefix, "BSTAR")
-    isnothing(bstar_dec) && return nothing
-
-    bstar_exp = _tle_try_parse(Float64, @view(l1[60:61]), 1, debug_prefix, "BSTAR")
-    isnothing(bstar_exp) && return nothing
-
-    bstar = bstar_dec * 10^bstar_exp
-
-    # -- Ephemeris Type --------------------------------------------------------------------
-
-    (l1[63] != '0' && l1[63] != ' ') &&
-        @warn(debug_prefix * "TLE ephemeris type should be 0.")
-
-    # -- Element Number --------------------------------------------------------------------
-
-    element_set_number = _tle_try_parse(
-        Int, @view(l1[65:68]), 1, debug_prefix, "element set number"
-    )
-    isnothing(element_set_number) && return nothing
+    bstar              = _parse_tle_exponential(cu, 54, 1, l1_position, "BSTAR")
+    ephemeris_type     = _parse_tle_ephemeris_type(cu, l1_position)
+    element_set_number = _parse_tle_int(cu, 65:68, 1, l1_position, "element set number")
 
     # == Second Line =======================================================================
 
-    debug_prefix = l2_position == 0 ? "" : "[Line $(l2_position)]: "
+    _check_tle_line(l2, 2, l2_position)
+    verify_checksum && _verify_tle_line_checksum(l2, 2, l2_position)
 
-    # The second line must start with "2 " and have 69 ASCII characters. The ASCII check is
-    # required to safely index the line by bytes when slicing the fields.
-    if !startswith(l2, "2 ") || (length(l2) != 69) || !isascii(l2)
-        @error(debug_prefix * "The 2nd line is not valid.")
-        return nothing
-    end
+    cu = codeunits(l2)
 
-    # -- Verify the Checksum ---------------------------------------------------------------
-
-    if verify_checksum && !_verify_tle_line_checksum(l2, 2; debug_prefix = debug_prefix)
-        return nothing
-    end
-
-    # -- Compare Satellite Number with the One in the First Line ---------------------------
-
-    satellite_number_line_2 = _tle_try_parse(
-        Int, @view(l2[3:7]), 2, debug_prefix, "satellite number"
+    _parse_satellite_number(cu, 2, l2_position) == satellite_number || throw(
+        TleParseError(
+            "Satellite number in line 2 is not equal to that in line 1.", l2_position
+        ),
     )
-    isnothing(satellite_number_line_2) && return nothing
 
-    if satellite_number_line_2 != satellite_number
-        @error(debug_prefix * "Satellite number in line 2 is not equal to that in line 1.")
-        return nothing
-    end
+    inclination = _parse_tle_float(l2, 9:16, 2, l2_position, "inclination")
 
-    # -- Inclination -----------------------------------------------------------------------
-
-    inclination = _tle_try_parse(Float64, @view(l2[9:16]), 2, debug_prefix, "inclination")
-    isnothing(inclination) && return nothing
-
-    # -- RAAN ------------------------------------------------------------------------------
-
-    raan = _tle_try_parse(
-        Float64,
-        @view(l2[18:25]),
-        2,
-        debug_prefix,
-        "right ascension of the ascending node (RAAN)",
+    raan = _parse_tle_float(
+        l2, 18:25, 2, l2_position, "right ascension of the ascending node (RAAN)"
     )
-    isnothing(raan) && return nothing
 
-    # -- Eccentricity ----------------------------------------------------------------------
+    # The eccentricity has 7 digits with an implied leading decimal point. The division is
+    # correctly rounded since both operands are exactly representable.
+    eccentricity =
+        _parse_tle_int(cu, 27:33, 2, l2_position, "eccentricity"; allow_sign = false) / 1e7
 
-    eccentricity = _tle_try_parse(
-        Float64, "." * @view(l2[27:33]), 2, debug_prefix, "eccentricity"
-    )
-    isnothing(eccentricity) && return nothing
-
-    # -- Argument of Perigee ---------------------------------------------------------------
-
-    argument_of_perigee = _tle_try_parse(
-        Float64, @view(l2[35:42]), 2, debug_prefix, "argument of perigee"
-    )
-    isnothing(argument_of_perigee) && return nothing
-
-    # -- Mean Anomaly ----------------------------------------------------------------------
-
-    mean_anomaly = _tle_try_parse(
-        Float64, @view(l2[44:51]), 2, debug_prefix, "mean anomaly"
-    )
-    isnothing(mean_anomaly) && return nothing
-
-    # -- Mean Motion -----------------------------------------------------------------------
-
-    mean_motion = _tle_try_parse(Float64, @view(l2[53:63]), 2, debug_prefix, "mean motion")
-    isnothing(mean_motion) && return nothing
-
-    # -- Revolution Number at Epoch --------------------------------------------------------
-
-    revolution_number = _tle_try_parse(
-        Int, @view(l2[64:68]), 2, debug_prefix, "revolution number"
-    )
-    isnothing(revolution_number) && return nothing
+    argument_of_perigee = _parse_tle_float(l2, 35:42, 2, l2_position, "argument of perigee")
+    mean_anomaly        = _parse_tle_float(l2, 44:51, 2, l2_position, "mean anomaly")
+    mean_motion         = _parse_tle_float(l2, 53:63, 2, l2_position, "mean motion")
+    revolution_number   = _parse_tle_int(cu, 64:68, 2, l2_position, "revolution number")
 
     # == Create the TLE ====================================================================
 
-    # Now we can create the TLE.
-    return TLE(
-        name,
-        satellite_number,
-        classification,
-        international_designator,
-        epoch_year,
-        epoch_day,
-        dn_o2,
-        ddn_o6,
-        bstar,
-        element_set_number,
-        inclination,
-        raan,
-        eccentricity,
-        argument_of_perigee,
-        mean_anomaly,
-        mean_motion,
-        revolution_number,
-    )
+    # The constructor validates the field ranges. A violation means that the input is not a
+    # valid TLE, so the error is converted to a parsing error.
+    try
+        return TLE(
+            name,
+            satellite_number,
+            classification,
+            international_designator,
+            epoch_year,
+            epoch_day,
+            dn_o2,
+            ddn_o6,
+            bstar,
+            ephemeris_type,
+            element_set_number,
+            inclination,
+            raan,
+            eccentricity,
+            argument_of_perigee,
+            mean_anomaly,
+            mean_motion,
+            revolution_number,
+        )
+    catch e
+        e isa ArgumentError || rethrow(e)
+        throw(TleParseError(e.msg, l1_position))
+    end
 end
 
-# Parse the TLEs in the `io`.
+"""
+    _parse_tles(io::IO; kwargs...) -> Vector{TLE}
+
+Parse every TLE in `io`, returning them in a vector. Blank lines and lines starting with
+`#` are ignored, and the surrounding whitespace of each line is discarded. A TLE consists
+of an optional satellite name line followed by the two TLE lines. If a TLE cannot be
+parsed, a warning is emitted and the TLE is skipped.
+
+# Keywords
+
+- `verify_checksum::Bool`: If `true`, the checksum of both lines of each TLE is verified.
+    (**Default**: `true`)
+"""
 function _parse_tles(io::IO; verify_checksum::Bool = true)
-    # State machine to read the TLE. It has three possible states:
-    #
-    #   :name -> Satellite name.
-    #   :l1   -> Line 1.
-    #   :l2   -> Line 2.
-    #
-    # The transitions are:
-    #
-    #   :name --> :l1 --> :l2
-    #     ^                |
-    #     |                |
-    #      ----------------
-    #
-    state = :name
+    tles     = TLE[]
+    line_num = 0
 
-    # Output array with the TLEs found in the file.
-    vtle = TLE[]
+    while true
+        # The next meaningful line is either the satellite name or the first TLE line.
+        line, line_num = _next_tle_input_line(io, line_num)
+        isnothing(line) && break
 
-    # Auxiliary variables. Notice that we initialize the string variables with an empty
-    # `SubString` to keep them type-stable, since `strip(readline(io))` returns a
-    # `SubString{String}`.
-    line_num       = 0
-    l1_position    = 0
-    l2_position    = 0
-    line           = SubString("")
-    skip_line_read = false
-
-    # Variables to store each TLE information.
-    name   = SubString("")
-    line_1 = SubString("")
-    line_2 = SubString("")
-
-    while !eof(io)
-        # Read the current line, strip white spaces, and skip if it is blank or is a comment.
-        if !skip_line_read
-            line = strip(readline(io))
-            line_num += 1
-            (isempty(line) || (line[1] == '#')) && continue
-        else
-            skip_line_read = false
-        end
-
-        # Check the state of the reading.
-        if state === :name
-            # Check if the line seems to be the first line of the TLE. In this case, maybe
-            # the user has not provided a name. Then, change the state to `:l1`, and skip
-            # the line reading in the next loop.
-            if startswith(line, "1 ") && (length(line) == 69)
-                name = SubString("UNDEFINED")
-                state = :l1
-                skip_line_read = true
-                continue
-
-                # If the beginning of the line is `2 `, the line is considered the second TLE
-                # line. However, if we are in this state, it means that the first line had a
-                # parsing error. Hence, we need to skip this line.
-            elseif startswith(line, "2 ")
-                continue
-            end
-
-            # Otherwise, if the line is not blank, then it must be the name of the
-            # satellite.
-            #
-            # NOTE: The name should not be bigger than 24 characters. However, we will not
-            # check this here.
-
-            # Copy the name and change to state to wait for the 1st line.
-            name  = line
-            state = :l1
-
-            # == TLE Line 1 ====================================================================
-
-        elseif state === :l1
-            # The next non-blank line must be the first line of the TLE.  Otherwise, the
-            # file is not valid.
-
-            # The first line must start with "1 " and have 69 characters.
-            if !startswith(line, "1 ") || (length(line) != 69)
-                @error("[Line $line_num]: This is not a valid 1st line.")
-
-                # Reset the state machine and continue.
-                state = :name
-                continue
-            end
-
-            line_1      = line
+        if _is_tle_line(line, 1)
+            name        = SubString("UNDEFINED")
+            l1          = line
             l1_position = line_num
-            state       = :l2
 
-            # == TLE Line 2 ====================================================================
+        elseif startswith(line, "2 ")
+            # A second line here is the remnant of a TLE whose first line was not valid and
+            # has already been reported. Hence, we can skip it.
+            continue
 
-        elseif state === :l2
-            # The next non-blank line must be the second line of the TLE.  Otherwise, the
-            # file is not valid.
+        else
+            name = line
 
-            # The second line must start with "2 " and have 69 characters.
-            if !startswith(line, "2 ") || (length(line) != 69)
-                @error("[Line $line_num]: This is not a valid 2nd line.")
+            l1, line_num = _next_tle_input_line(io, line_num)
+            l1_position  = line_num
 
-                # Reset the state machine and continue.
-                state = :name
-                continue
+            if isnothing(l1)
+                @warn("[Line $line_num]: The last TLE in the input is incomplete.")
+                break
             end
 
-            line_2 = line
-            l2_position = line_num
+            if !_is_tle_line(l1, 1)
+                @warn("[Line $line_num]: The 1st line is not valid. The TLE was skipped.")
+                continue
+            end
+        end
 
-            # Now, we can parse the TLE.
-            tle = _parse_tle(
-                line_1, line_2; l1_position, l2_position, name, verify_checksum
-            )
+        l2, line_num = _next_tle_input_line(io, line_num)
+        l2_position  = line_num
 
-            !isnothing(tle) && push!(vtle, tle)
+        if isnothing(l2)
+            @warn("[Line $line_num]: The last TLE in the input is incomplete.")
+            break
+        end
 
-            # Change the state to wait for another TLE.
-            state = :name
+        if !_is_tle_line(l2, 2)
+            @warn("[Line $line_num]: The 2nd line is not valid. The TLE was skipped.")
+            continue
+        end
+
+        try
+            tle = _parse_tle(l1, l2; name, l1_position, l2_position, verify_checksum)
+            push!(tles, tle)
+        catch e
+            e isa TleParseError || rethrow(e)
+            @warn(_tle_parse_error_message(e) * " The TLE was skipped.")
         end
     end
 
-    # If the final state is not :name, then we have an incomplete TLE. Thus, log an error
-    # because the file is not valid.
-    state !== :name &&
-        @error("[Line $line_num]: " * "The last TLE in the file is incomplete.")
-
-    return vtle
+    return tles
 end
 
-# Verify the TLE `line` checksum related to the TLE line `line_number`, which can be 1 or 2.
-#
-# If the checksum is valid, this function returns `true`. Otherwise, it returns `false`.
-#
-# `debug_prefix` is a string that will be added to the debugging messages.
-function _verify_tle_line_checksum(
-    line::AbstractString, line_number::Int; debug_prefix::String = ""
-)
-    # Try parsing the line checksum.
-    checksum = _tle_try_parse(
-        Int, @view(line[69:69]), 1, debug_prefix, "line $line_number checksum"
+"""
+    _next_tle_input_line(io::IO, line_num::Int) -> Union{SubString{String}, Nothing}, Int
+
+Read from `io` the next line that is neither blank nor a comment starting with `#`,
+returning it without the surrounding whitespace together with its number in the input,
+given that `line_num` lines were read before. If `io` is exhausted, the returned line is
+`nothing`.
+"""
+function _next_tle_input_line(io::IO, line_num::Int)
+    while !eof(io)
+        line      = strip(readline(io))
+        line_num += 1
+
+        (isempty(line) || (line[1] == '#')) && continue
+
+        return line, line_num
+    end
+
+    return nothing, line_num
+end
+
+"""
+    _is_tle_line(line::AbstractString, line_number::Int) -> Bool
+
+Return `true` if `line` has the shape of the TLE line `line_number` (1 or 2): 69 bytes
+starting with the line number followed by a space.
+"""
+function _is_tle_line(line::AbstractString, line_number::Int)
+    return (sizeof(line) == 69) && startswith(line, line_number == 1 ? "1 " : "2 ")
+end
+
+"""
+    _check_tle_line(line::AbstractString, line_number::Int, position::Int) -> Nothing
+
+Throw a `TleParseError` at `position` if `line` is not a valid TLE line `line_number` (1
+or 2): 69 ASCII characters starting with the line number followed by a space. The ASCII
+check allows the fields to be sliced by bytes.
+"""
+function _check_tle_line(line::AbstractString, line_number::Int, position::Int)
+    (_is_tle_line(line, line_number) && isascii(line)) || throw(
+        TleParseError(
+            "The $(line_number == 1 ? "1st" : "2nd") line is not valid.", position
+        ),
     )
-    isnothing(checksum) && return false
 
-    # Compute the expected checksum.
-    expected_checksum = tle_line_checksum(@view line[1:(end - 1)])
-
-    if checksum != expected_checksum
-        @error(
-            debug_prefix *
-                "Wrong checksum in TLE line $line_number (expected = $expected_checksum, found = $checksum)."
-        )
-
-        return false
-    end
-
-    return true
+    return nothing
 end
 
-# Try to parse the `input` to type `T`.
-#
-# If the operation is successful, it returns the parsed value to `input`.  Otherwise, it
-# prints an error message and returns `nothing`.
-#
-# `debug_prefix` is a string to be added to the debugging message, `line_number` must be the
-# current TLE line number (1 or 2), and `field` must be the current TLE field that is being
-# parsed.
-function _tle_try_parse(
-    ::Type{T}, input::AbstractString, line_number::Int, debug_prefix::String, field::String
-) where {T}
-    output = tryparse(T, input)
+"""
+    _verify_tle_line_checksum(
+        line::AbstractString,
+        line_number::Int,
+        position::Int
+    ) -> Nothing
 
-    if isnothing(output)
-        @error(
-            debug_prefix *
-                "The $(field) in the TLE line $(line_number) could not be parsed."
-        )
-        return nothing
+Throw a `TleParseError` at `position` if the checksum in the last character of the TLE
+`line`, which is the line `line_number` (1 or 2), does not match the checksum computed
+from the other characters.
+"""
+function _verify_tle_line_checksum(line::AbstractString, line_number::Int, position::Int)
+    field = line_number == 1 ? "line 1 checksum" : "line 2 checksum"
+    found = _parse_tle_int(codeunits(line), 69:69, line_number, position, field)
+
+    expected = tle_line_checksum(SubString(line, 1, 68))
+
+    found == expected || throw(
+        TleParseError(
+            "Wrong checksum in TLE line $line_number (expected = $expected, found = " *
+            "$found).",
+            position,
+        ),
+    )
+
+    return nothing
+end
+
+"""
+    _parse_tle_int(
+        cu::AbstractVector{UInt8},
+        range::UnitRange{Int},
+        line_number::Int,
+        position::Int,
+        field::String;
+        kwargs...
+    ) -> Int
+
+Parse the integer in the bytes `range` of the TLE line `cu`, which is the line
+`line_number` (1 or 2) at `position` in the input. Leading spaces are ignored, and a
+`TleParseError` naming `field` is thrown if the remaining characters are not a sign
+followed by digits.
+
+# Keywords
+
+- `allow_sign::Bool`: If `true`, a `+` or `-` sign may precede the digits.
+    (**Default**: `true`)
+"""
+function _parse_tle_int(
+    cu::AbstractVector{UInt8},
+    range::UnitRange{Int},
+    line_number::Int,
+    position::Int,
+    field::String;
+    allow_sign::Bool = true,
+)
+    i    = first(range)
+    stop = last(range)
+
+    # Skip the leading spaces used to right-justify the field.
+    while (i <= stop) && (cu[i] == UInt8(' '))
+        i += 1
     end
 
-    return output
+    sign = 1
+
+    if allow_sign && (i <= stop)
+        if cu[i] == UInt8('-')
+            sign = -1
+            i   += 1
+        elseif cu[i] == UInt8('+')
+            i += 1
+        end
+    end
+
+    # The remaining characters must be at least one digit.
+    i <= stop || _throw_tle_field_error(line_number, position, field)
+
+    value = 0
+
+    for j in i:stop
+        c = cu[j]
+        (UInt8('0') <= c <= UInt8('9')) ||
+            _throw_tle_field_error(line_number, position, field)
+        value = 10value + (c - UInt8('0'))
+    end
+
+    return sign * value
+end
+
+"""
+    _parse_tle_float(
+        line::AbstractString,
+        range::UnitRange{Int},
+        line_number::Int,
+        position::Int,
+        field::String
+    ) -> Float64
+
+Parse the floating-point number in the bytes `range` of the TLE `line`, which is the line
+`line_number` (1 or 2) at `position` in the input, throwing a `TleParseError` naming
+`field` if the characters cannot be parsed.
+"""
+function _parse_tle_float(
+    line::AbstractString,
+    range::UnitRange{Int},
+    line_number::Int,
+    position::Int,
+    field::String,
+)
+    value = tryparse(Float64, SubString(line, first(range), last(range)))
+    isnothing(value) && _throw_tle_field_error(line_number, position, field)
+    return value
+end
+
+"""
+    _parse_tle_exponential(
+        cu::AbstractVector{UInt8},
+        start::Int,
+        line_number::Int,
+        position::Int,
+        field::String
+    ) -> Float64
+
+Parse the 8-byte field starting at byte `start` of the TLE line `cu`, which is the line
+`line_number` (1 or 2) at `position` in the input, written in the TLE exponential notation
+`±MMMMM±E`: a sign (`-`, `+`, or space), 5 mantissa digits with an implied leading
+decimal point, and a signed exponent digit. A `TleParseError` naming `field` is thrown if
+the characters cannot be parsed.
+"""
+function _parse_tle_exponential(
+    cu::AbstractVector{UInt8},
+    start::Int,
+    line_number::Int,
+    position::Int,
+    field::String,
+)
+    sign_char = cu[start]
+
+    if sign_char == UInt8('-')
+        sign = -1
+    elseif (sign_char == UInt8('+')) || (sign_char == UInt8(' '))
+        sign = +1
+    else
+        _throw_tle_field_error(line_number, position, field)
+    end
+
+    mantissa = _parse_tle_int(
+        cu, (start + 1):(start + 5), line_number, position, field; allow_sign = false
+    )
+    exponent = _parse_tle_int(cu, (start + 6):(start + 7), line_number, position, field)
+
+    # The mantissa has 5 digits after the implied decimal point, so the value is
+    # `mantissa × 10^(exponent - 5)`. The scaling is correctly rounded since both operands
+    # are exactly representable.
+    return sign * _scale_by_power_of_ten(mantissa, exponent - 5)
+end
+
+"""
+    _parse_satellite_number(
+        cu::AbstractVector{UInt8},
+        line_number::Int,
+        position::Int
+    ) -> Int
+
+Parse the satellite catalog number in bytes 3 to 7 of the TLE line `cu`, which is the line
+`line_number` (1 or 2) at `position` in the input. Besides the plain 5-digit numbers, the
+Alpha-5 scheme is supported, in which the first character is a letter encoding the two
+leading digits (`A` = 10, `B` = 11, ..., `Z` = 33, skipping `I` and `O`). A
+`TleParseError` is thrown if the characters cannot be parsed.
+"""
+function _parse_satellite_number(
+    cu::AbstractVector{UInt8}, line_number::Int, position::Int
+)
+    field = "satellite number"
+    c     = Char(cu[3])
+
+    isletter(c) || return _parse_tle_int(cu, 3:7, line_number, position, field)
+
+    letter_index = findfirst(==(c), _ALPHA5_LETTERS)
+    isnothing(letter_index) && _throw_tle_field_error(line_number, position, field)
+
+    digits = _parse_tle_int(cu, 4:7, line_number, position, field; allow_sign = false)
+
+    return (letter_index + 9) * 10_000 + digits
+end
+
+"""
+    _parse_tle_ephemeris_type(cu::AbstractVector{UInt8}, position::Int) -> Int
+
+Parse the ephemeris type in byte 63 of the first TLE line `cu`, at `position` in the
+input. A blank field is interpreted as 0, and a `TleParseError` is thrown if the character
+is not a digit.
+"""
+function _parse_tle_ephemeris_type(cu::AbstractVector{UInt8}, position::Int)
+    cu[63] == UInt8(' ') && return 0
+    return _parse_tle_int(cu, 63:63, 1, position, "ephemeris type"; allow_sign = false)
+end
+
+"""
+    _throw_tle_field_error(line_number::Int, position::Int, field::String) -> Nothing
+
+Throw the `TleParseError` reporting that `field` of the TLE line `line_number` (1 or 2),
+at `position` in the input, could not be parsed.
+"""
+function _throw_tle_field_error(line_number::Int, position::Int, field::String)
+    throw(
+        TleParseError(
+            "The $field in the TLE line $line_number could not be parsed.", position
+        ),
+    )
+end
+
+"""
+    _tle_parse_error_message(e::TleParseError) -> String
+
+Return the message of `e` prefixed by the line number in the input, if known.
+"""
+function _tle_parse_error_message(e::TleParseError)
+    return e.line > 0 ? "[Line $(e.line)]: $(e.msg)" : e.msg
 end
