@@ -4,80 +4,73 @@
 #
 ############################################################################################
 
+const _PRINTING_TLE = tle"""
+AMAZONIA 1
+1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
+2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
+"""
+
 # == Function: print =======================================================================
 
 @testset "Function print" begin
-    tle = tle"""
-    AMAZONIA 1
-    1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
-    2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
-    """
-
-    expected = "TLE: AMAZONIA 1 (Epoch = 2023-03-24T16:28:40.388)"
-    str = sprint(print, tle)
-
-    @test str == expected
+    expected = "TLE: AMAZONIA 1 [47699] (Epoch = 2023-03-24T16:28:40.388)"
+    @test sprint(print, _PRINTING_TLE) == expected
 end
 
 # == Function: show ========================================================================
 
 @testset "Function show" begin
-    tle = tle"""
-    AMAZONIA 1
-    1 47699U 21015A   23083.68657856 -.00000044  10000-8  43000-4 0  9990
-    2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652
-    """
+    expected = """
+    TLE: AMAZONIA 1 (Epoch = 2023-03-24T16:28:40.388):
+      ├─ Line 1
+      │    Satellite Number         : 47699
+      │    Classification           : U
+      │    International Designator : 21015A
+      │    Epoch Year               : 23
+      │    Epoch Day                : 83.68657856
+      │    ṅ/2                      : -4.4e-7 rev/day²
+      │    n̈/6                      : 1.0e-9 rev/day³
+      │    B*                       : 4.3e-5 1/ER
+      │    Ephemeris Type           : 0
+      │    Element Set Number       : 999
+      └─ Line 2
+           Inclination       : 98.4304°
+           RA of Asc. Node   : 162.1097°
+           Eccentricity      : 0.0001247
+           Arg. of Perigee   : 136.2017°
+           Mean Anomaly      : 223.9283°
+           Mean Motion       : 14.40814394 rev/day
+           Revolution Number : 10865"""
 
     # == Without Colors ====================================================================
 
-    expected = """
-    TLE:
-                          Name : AMAZONIA 1
-              Satellite number : 47699
-      International designator : 21015A
-            Epoch (Year / Day) : 23 /  83.68657856 (2023-03-24T16:28:40.388)
-            Element set number : 999
-                  Eccentricity :   0.00012470
-                   Inclination :  98.43040000 deg
-                          RAAN : 162.10970000 deg
-           Argument of perigee : 136.20170000 deg
-                  Mean anomaly : 223.92830000 deg
-               Mean motion (n) :  14.40814394 revs / day
-             Revolution number : 10865
-                            B* :      4.3e-05 1 / er
-                         ṅ / 2 :     -4.4e-07 rev / day²
-                         n̈ / 6 :        1e-09 rev / day³"""
-
-    buf = IOBuffer()
-    show(buf, MIME("text/plain"), tle)
-    str = String(take!(buf))
-
+    str = sprint(show, MIME("text/plain"), _PRINTING_TLE)
     @test str == expected
 
     # == With Colors =======================================================================
 
-    expected = """
-    TLE:
-    \e[1m                      Name : \e[0mAMAZONIA 1
-    \e[1m          Satellite number : \e[0m47699
-    \e[1m  International designator : \e[0m21015A
-    \e[1m        Epoch (Year / Day) : \e[0m23 /  83.68657856 (2023-03-24T16:28:40.388)
-    \e[1m        Element set number : \e[0m999
-    \e[1m              Eccentricity : \e[0m  0.00012470
-    \e[1m               Inclination : \e[0m 98.43040000 deg
-    \e[1m                      RAAN : \e[0m162.10970000 deg
-    \e[1m       Argument of perigee : \e[0m136.20170000 deg
-    \e[1m              Mean anomaly : \e[0m223.92830000 deg
-    \e[1m           Mean motion (n) : \e[0m 14.40814394 revs / day
-    \e[1m         Revolution number : \e[0m10865
-    \e[1m                        B* : \e[0m     4.3e-05 1 / er
-    \e[1m                     ṅ / 2 : \e[0m    -4.4e-07 rev / day²
-    \e[1m                     n̈ / 6 : \e[0m       1e-09 rev / day³"""
+    # The faces can be customized by the user. Hence, we only check that the decorations
+    # are present and that the text is the same as the one without colors.
+    str = sprint(show, MIME("text/plain"), _PRINTING_TLE; context = :color => true)
 
-    buf = IOBuffer()
-    io = IOContext(buf, :color => true)
-    show(io, MIME("text/plain"), tle)
-    str = String(take!(buf))
+    @test occursin("\e[1m", str)
+    @test occursin("\e[1mSatellite Number\e[22m", str)
+    @test replace(str, r"\e\[[0-9;]*m" => "") == expected
+end
 
-    @test str == expected
+# == Exceptions ============================================================================
+
+@testset "Exceptions" begin
+    e = TleParseError("The 1st line is not valid.")
+    @test sprint(showerror, e) == "TleParseError: The 1st line is not valid."
+
+    e = TleParseError("The 1st line is not valid."; line = 3)
+    @test sprint(showerror, e) == "TleParseError: [Line 3]: The 1st line is not valid."
+
+    e = TleFetchError("The request failed.")
+    @test sprint(showerror, e) == "TleFetchError: The request failed."
+
+    e = TleFetchError("The request failed."; url = "https://celestrak.org", status = 404)
+    @test sprint(showerror, e) ==
+        "TleFetchError: The request failed. (HTTP status: 404)\nURL: https://celestrak.org"
 end
