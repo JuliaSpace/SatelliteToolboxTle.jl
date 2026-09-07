@@ -4,12 +4,15 @@ SatelliteToolboxTle.jl Changelog
 Version 1.2.0
 -------------
 
+- ![BREAKING][badge-breaking] Remove `convert(String, tle)`, which invalidated the compiled
+  `convert(String, ::Any)` call sites of Base and other packages. Use
+  `write_tle(String, tle)` instead, which returns the same text with a trailing newline.
 - ![Feature][badge-feature] Add the exception `TleParseError`, thrown by the parsing
   functions with the line number and a description of the problem. The parsers no longer
   log errors, and the functions that read multiple TLEs emit a warning and skip the invalid
   ones.
 - ![Feature][badge-feature] Add the functions `write_tle` and `write_tles` to write TLEs to
-  streams and files.
+  streams and files, or to return their text when the first argument is `String`.
 - ![Feature][badge-feature] Add the keyword `epoch::DateTime` to the `TLE` constructor and
   the property `tle.epoch`, which returns the epoch as a `DateTime`.
 - ![Feature][badge-feature] Add the field `ephemeris_type` to the `TLE` structure, which is
