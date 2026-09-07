@@ -51,13 +51,13 @@ function print_tree_body(io::IO, tle::TLE)
     ]
 
     line_2_fields = PrintedField[
-        ("Inclination",       string(tle.inclination),         "°"),
-        ("RA of Asc. Node",   string(tle.raan),                "°"),
-        ("Eccentricity",      string(tle.eccentricity),        ""),
-        ("Arg. of Perigee",   string(tle.argument_of_perigee), "°"),
-        ("Mean Anomaly",      string(tle.mean_anomaly),        "°"),
-        ("Mean Motion",       string(tle.mean_motion),         "rev/day"),
-        ("Revolution Number", string(tle.revolution_number),   ""),
+        ("Inclination",              string(tle.inclination),         "°"),
+        ("RA of the Ascending Node", string(tle.raan),                "°"),
+        ("Eccentricity",             string(tle.eccentricity),        ""),
+        ("Arg. of Perigee",          string(tle.argument_of_perigee), "°"),
+        ("Mean Anomaly",             string(tle.mean_anomaly),        "°"),
+        ("Mean Motion",              string(tle.mean_motion),         "rev/day"),
+        ("Revolution Number",        string(tle.revolution_number),   ""),
     ]
 
     sections = PrintedSection[
