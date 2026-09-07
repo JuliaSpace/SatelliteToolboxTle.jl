@@ -67,8 +67,6 @@ end
 
     str = convert(String, tle)
 
-    println(str)
-
     expected_str = """
         Amazonia-1              
         1 47699U 21015A   23083.68657856 -.00000044  10000-7  43000-4 0  9999
@@ -234,4 +232,140 @@ end
 
     @test tle_epoch(tle) ≈ datetime2julian(expected_epoch_dt)
     @test tle_epoch(DateTime, tle) == expected_epoch_dt
+    @test tle.epoch == expected_epoch_dt
+    @test :epoch in propertynames(tle)
+
+    # == Epoch Year Pivot ==================================================================
+
+    # Years from 57 to 99 refer to the 20th century, and years from 0 to 56 to the 21st
+    # century.
+    for (epoch_year, expected_year) in ((0, 2000), (56, 2056), (57, 1957), (99, 1999))
+        tle = TLE(;
+            epoch_year          = epoch_year,
+            epoch_day           = 1.5,
+            inclination         = 98.4304,
+            raan                = 162.1097,
+            eccentricity        = 0.0001247,
+            argument_of_perigee = 136.2017,
+            mean_anomaly        = 223.9283,
+            mean_motion         = 14.40814394,
+        )
+
+        @test tle_epoch(DateTime, tle) == DateTime(expected_year, 1, 1, 12)
+        @test tle_epoch(tle) == datetime2julian(DateTime(expected_year, 1, 1, 12))
+    end
+end
+
+# == Epoch Keyword =========================================================================
+
+@testset "TLE Creation With the Epoch Keyword" begin
+    kwargs = (
+        inclination         = 98.4304,
+        raan                = 162.1097,
+        eccentricity        = 0.0001247,
+        argument_of_perigee = 136.2017,
+        mean_anomaly        = 223.9283,
+        mean_motion         = 14.40814394,
+    )
+
+    tle = TLE(; kwargs..., epoch = DateTime(2023, 3, 24, 16, 28, 40, 388))
+
+    @test tle.epoch_year == 23
+    @test tle.epoch_day ≈ 83.68657856 atol = 1e-8
+    @test tle.epoch == DateTime(2023, 3, 24, 16, 28, 40, 388)
+
+    # The two-digit year must follow the pivot used by `tle_epoch`.
+    @test TLE(; kwargs..., epoch = DateTime(1957, 1, 1)).epoch_year == 57
+    @test TLE(; kwargs..., epoch = DateTime(2056, 12, 31, 12)).epoch_year == 56
+    @test TLE(; kwargs..., epoch = DateTime(2056, 12, 31, 12)).epoch_day == 366.5
+end
+
+# == Functions: write_tle and write_tles ===================================================
+
+@testset "Functions: write_tle and write_tles" begin
+    tles = read_tles_from_file("./samples.tle")
+    tle  = first(tles)
+
+    # == IO ================================================================================
+
+    buf = IOBuffer()
+    write_tle(buf, tle)
+    @test String(take!(buf)) == convert(String, tle) * "\n"
+
+    buf = IOBuffer()
+    write_tles(buf, tles)
+    @test String(take!(buf)) == join(convert.(String, tles), "\n") * "\n"
+
+    # == Files =============================================================================
+
+    mktempdir() do dir
+        file = joinpath(dir, "tle.tle")
+        write_tle(file, tle)
+        @test read(file, String) == convert(String, tle) * "\n"
+        @test read_tles_from_file(file) == [tle]
+
+        file = joinpath(dir, "tles.tle")
+        write_tles(file, tles)
+        @test read_tles_from_file(file) == tles
+    end
+end
+
+# == Conversion Corner Cases ===============================================================
+
+@testset "Conversion TLE => String, Field Limits" begin
+    kwargs = (
+        satellite_number         = 47699,
+        international_designator = "21015A",
+        epoch_year               = 23,
+        epoch_day                = 83.68657856,
+        element_set_number       = 999,
+        inclination              = 98.4304,
+        raan                     = 162.1097,
+        eccentricity             = 0.0001247,
+        argument_of_perigee      = 136.2017,
+        mean_anomaly             = 223.9283,
+        mean_motion              = 14.40814394,
+        revolution_number        = 10865,
+    )
+
+    # An angle that rounds to 360° at the printed precision must be written as 0°.
+    tle = TLE(; kwargs..., raan = 359.99996, mean_anomaly = -0.00004)
+    l2  = split(convert(String, tle), '\n')[3]
+    @test l2[18:25] == "  0.0000"
+    @test l2[44:51] == "  0.0000"
+    @test read_tle(convert(String, tle)).raan == 0
+
+    # The mean motion must keep its two integer digits after the rounding.
+    tle = TLE(; kwargs..., mean_motion = 99.999999996)
+    l2  = split(convert(String, tle), '\n')[3]
+    @test l2[53:63] == "99.99999999"
+    @test length(l2) == 69
+
+    # The ephemeris type and the maximum integer fields must be written back.
+    tle = TLE(;
+        kwargs...,
+        ephemeris_type     = 4,
+        element_set_number = 9999,
+        revolution_number  = 99_999,
+        epoch_day          = 366.99999999,
+    )
+
+    l1 = split(convert(String, tle), '\n')[2]
+    @test l1[63] == '4'
+    @test l1[65:68] == "9999"
+    @test l1[21:32] == "366.99999999"
+    @test length(l1) == 69
+
+    parsed = read_tle(convert(String, tle))
+    @test parsed == tle
+    @test parsed.ephemeris_type == 4
+    @test parsed.revolution_number == 99_999
+
+    # Large derivatives must saturate the field with a warning instead of throwing.
+    tle = TLE(; kwargs..., dn_o2 = -1e12)
+    str = @test_logs (
+        :warn,
+        "The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated.",
+    ) convert(String, tle)
+    @test read_tle(str).dn_o2 == -0.99999999
 end
