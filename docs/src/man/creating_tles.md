@@ -71,13 +71,6 @@ TLE(
 
 ## Writing TLEs
 
-The text representation of the TLE can be obtained by converting the object to a string
-using `convert`:
-
-```@repl creating_tles
-convert(String, tle) |> print
-```
-
 The functions [`write_tle`](@ref) and [`write_tles`](@ref) write one or multiple TLEs to a
 stream or to a file:
 
@@ -85,6 +78,12 @@ stream or to a file:
 write_tle(stdout, tle)
 
 write_tles(stdout, [tle, tle])
+```
+
+If the first argument is the type `String`, the text representation is returned instead:
+
+```@repl creating_tles
+write_tle(String, tle)
 ```
 
 The angles are normalized to the interval [0, 360)° before being written. If the magnitude

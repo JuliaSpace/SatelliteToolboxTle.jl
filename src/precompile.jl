@@ -53,7 +53,7 @@ PrecompileTools.@compile_workload begin
 
     # == Conversion and Writing ============================================================
 
-    convert(String, tle)
+    write_tle(String, tle)
     write_tles(IOBuffer(), tles)
     tle_epoch(tle)
     tle_epoch(DateTime, tle)

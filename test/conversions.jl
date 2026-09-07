@@ -33,12 +33,12 @@
             stri_l1 *= string(tle_line_checksum(stri_l1[1:end]))
         end
 
-        stri = stri_name * "\n" * stri_l1 * "\n" * stri_l2
+        stri = stri_name * "\n" * stri_l1 * "\n" * stri_l2 * "\n"
 
         # If the OS is Windows, we should remove `\r` to avoid testing failure.
         Sys.iswindows() && (stri = replace(stri, "\r" => ""))
 
-        strf = convert(String, tles[i])
+        strf = write_tle(String, tles[i])
 
         @test strf == stri
     end
@@ -65,12 +65,13 @@ end
         revolution_number        = 10865,
     )
 
-    str = convert(String, tle)
+    str = write_tle(String, tle)
 
-    expected_str = """
-        Amazonia-1              
-        1 47699U 21015A   23083.68657856 -.00000044  10000-7  43000-4 0  9999
-        2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652"""
+    # The name is padded to 24 characters.
+    expected_str =
+        rpad("Amazonia-1", 24) * "\n" *
+        "1 47699U 21015A   23083.68657856 -.00000044  10000-7  43000-4 0  9999\n" *
+        "2 47699  98.4304 162.1097 0001247 136.2017 223.9283 14.40814394108652\n"
 
     @test str == expected_str
 end
@@ -96,7 +97,7 @@ end
         revolution_number        = 10865,
     )
 
-    str = convert(String, tle)
+    str = write_tle(String, tle)
 
     # The epoch year must be zero-padded to two digits.
     l1 = split(str, '\n')[2]
@@ -128,7 +129,7 @@ end
         revolution_number        = 10865,
     )
 
-    parsed = convert(String, tle) |> read_tle
+    parsed = write_tle(String, tle) |> read_tle
 
     @test parsed.epoch_day == 84.0
     @test parsed.ddn_o6 == 0.1
@@ -155,7 +156,7 @@ end
     str = @test_logs (
         :warn,
         "The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated.",
-    ) convert(String, tle)
+    ) write_tle(String, tle)
 
     @test read_tle(str).dn_o2 == 0.99999999
 end
@@ -185,7 +186,7 @@ end
         :warn,
         "The ddn_o6 magnitude is too large to be represented in a TLE. The field will " *
         "be saturated.",
-    ) convert(String, tle)
+    ) write_tle(String, tle)
 
     parsed = read_tle(str)
 
@@ -214,7 +215,7 @@ end
         :warn,
         "The BSTAR magnitude is too small to be represented in a TLE. The field will " *
         "be set to 0.",
-    ) convert(String, tle)
+    ) write_tle(String, tle)
 
     @test read_tle(str).bstar == 0
 end
@@ -290,18 +291,19 @@ end
 
     buf = IOBuffer()
     write_tle(buf, tle)
-    @test String(take!(buf)) == convert(String, tle) * "\n"
+    @test String(take!(buf)) == write_tle(String, tle)
 
     buf = IOBuffer()
     write_tles(buf, tles)
-    @test String(take!(buf)) == join(convert.(String, tles), "\n") * "\n"
+    @test String(take!(buf)) == write_tles(String, tles)
+    @test write_tles(String, tles) == join(write_tle.(String, tles))
 
     # == Files =============================================================================
 
     mktempdir() do dir
         file = joinpath(dir, "tle.tle")
         write_tle(file, tle)
-        @test read(file, String) == convert(String, tle) * "\n"
+        @test read(file, String) == write_tle(String, tle)
         @test read_tles_from_file(file) == [tle]
 
         file = joinpath(dir, "tles.tle")
@@ -330,14 +332,14 @@ end
 
     # An angle that rounds to 360° at the printed precision must be written as 0°.
     tle = TLE(; kwargs..., raan = 359.99996, mean_anomaly = -0.00004)
-    l2  = split(convert(String, tle), '\n')[3]
+    l2  = split(write_tle(String, tle), '\n')[3]
     @test l2[18:25] == "  0.0000"
     @test l2[44:51] == "  0.0000"
-    @test read_tle(convert(String, tle)).raan == 0
+    @test read_tle(write_tle(String, tle)).raan == 0
 
     # The mean motion must keep its two integer digits after the rounding.
     tle = TLE(; kwargs..., mean_motion = 99.999999996)
-    l2  = split(convert(String, tle), '\n')[3]
+    l2  = split(write_tle(String, tle), '\n')[3]
     @test l2[53:63] == "99.99999999"
     @test length(l2) == 69
 
@@ -350,13 +352,13 @@ end
         epoch_day          = 366.99999999,
     )
 
-    l1 = split(convert(String, tle), '\n')[2]
+    l1 = split(write_tle(String, tle), '\n')[2]
     @test l1[63] == '4'
     @test l1[65:68] == "9999"
     @test l1[21:32] == "366.99999999"
     @test length(l1) == 69
 
-    parsed = read_tle(convert(String, tle))
+    parsed = read_tle(write_tle(String, tle))
     @test parsed == tle
     @test parsed.ephemeris_type == 4
     @test parsed.revolution_number == 99_999
@@ -366,6 +368,6 @@ end
     str = @test_logs (
         :warn,
         "The dn_o2 magnitude cannot be represented in a TLE. The field will be saturated.",
-    ) convert(String, tle)
+    ) write_tle(String, tle)
     @test read_tle(str).dn_o2 == -0.99999999
 end

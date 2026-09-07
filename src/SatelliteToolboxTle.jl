@@ -5,7 +5,7 @@ using Downloads
 
 using URIs
 
-import Base: convert, show
+import Base: show
 import SatelliteToolboxBase: PrintedField, PrintedSection, print_tree, print_tree_body
 
 ############################################################################################

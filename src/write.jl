@@ -11,32 +11,17 @@
 export write_tle, write_tles
 
 ############################################################################################
-#                                        Overloads                                         #
-############################################################################################
-
-"""
-    convert(::Type{String}, tle::TLE) -> String
-
-Convert `tle` to its text representation: the satellite name line followed by the two TLE
-lines, without a trailing newline. The lines are formatted as described in
-[`write_tle`](@ref).
-"""
-function convert(::Type{String}, tle::TLE)
-    buf = IOBuffer()
-    write_tle(buf, tle)
-    return String(chomp(String(take!(buf))))
-end
-
-############################################################################################
 #                                     Public Functions                                     #
 ############################################################################################
 
 """
     write_tle(io::IO, tle::TLE) -> Nothing
     write_tle(file::AbstractString, tle::TLE) -> Nothing
+    write_tle(String, tle::TLE) -> String
 
 Write the text representation of `tle` to the stream `io` or to the file `file`, which is
-created or overwritten.
+created or overwritten. If the first argument is the type `String`, the text is returned
+instead.
 
 The output has three lines terminated by a newline: the satellite name padded to 24
 characters, and the two TLE lines with recomputed checksums. The angles (inclination, RAAN,
@@ -73,13 +58,21 @@ function write_tle(file::AbstractString, tle::TLE)
     return nothing
 end
 
+function write_tle(::Type{String}, tle::TLE)
+    buf = IOBuffer()
+    write_tle(buf, tle)
+    return String(take!(buf))
+end
+
 """
     write_tles(io::IO, tles::AbstractVector{TLE}) -> Nothing
     write_tles(file::AbstractString, tles::AbstractVector{TLE}) -> Nothing
+    write_tles(String, tles::AbstractVector{TLE}) -> String
 
 Write the text representation of every TLE in `tles` to the stream `io` or to the file
-`file`, which is created or overwritten. Each TLE is written as described in
-[`write_tle`](@ref), one after the other.
+`file`, which is created or overwritten. If the first argument is the type `String`, the
+text is returned instead. Each TLE is written as described in [`write_tle`](@ref), one
+after the other.
 """
 function write_tles(io::IO, tles::AbstractVector{TLE})
     for tle in tles
@@ -95,6 +88,12 @@ function write_tles(file::AbstractString, tles::AbstractVector{TLE})
     end
 
     return nothing
+end
+
+function write_tles(::Type{String}, tles::AbstractVector{TLE})
+    buf = IOBuffer()
+    write_tles(buf, tles)
+    return String(take!(buf))
 end
 
 ############################################################################################

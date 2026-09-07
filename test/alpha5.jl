@@ -6,7 +6,7 @@
 
 # Return the TLE lines of `tle` with valid checksums.
 function _tle_lines(tle::TLE)
-    l0, l1, l2 = split(convert(String, tle), '\n')
+    l0, l1, l2 = split(write_tle(String, tle), '\n')
     return String(l1), String(l2)
 end
 
@@ -50,7 +50,7 @@ end
     for satellite_number in (100_000, 107_699, 180_000, 230_000, 339_999)
         tle = TLE(; kwargs..., satellite_number)
         @test read_tle(_tle_lines(tle)...).satellite_number == satellite_number
-        @test read_tle(convert(String, tle)) == tle
+        @test read_tle(write_tle(String, tle)) == tle
     end
 
     # The letters `I` and `O` are not valid.
