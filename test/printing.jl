@@ -34,13 +34,13 @@ end
       │    Ephemeris Type           : 0
       │    Element Set Number       : 999
       └─ Line 2
-           Inclination       : 98.4304°
-           RA of Asc. Node   : 162.1097°
-           Eccentricity      : 0.0001247
-           Arg. of Perigee   : 136.2017°
-           Mean Anomaly      : 223.9283°
-           Mean Motion       : 14.40814394 rev/day
-           Revolution Number : 10865"""
+           Inclination              : 98.4304°
+           RA of the Ascending Node : 162.1097°
+           Eccentricity             : 0.0001247
+           Arg. of Perigee          : 136.2017°
+           Mean Anomaly             : 223.9283°
+           Mean Motion              : 14.40814394 rev/day
+           Revolution Number        : 10865"""
 
     # == Without Colors ====================================================================
 
